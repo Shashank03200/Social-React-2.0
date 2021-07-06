@@ -1,0 +1,12 @@
+.FeedContainer{
+    flex: 5.5;
+    margin-left: 250px;
+    background-color: red;
+    
+}
+
+.FeedWrapper{
+    padding: 20px;
+    padding-top: 0px;
+}
+
