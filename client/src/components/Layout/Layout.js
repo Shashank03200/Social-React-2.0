@@ -3,22 +3,25 @@ import Sidebar from '../Sidebar/SideBar';
 import RightBar from '../RightBar/RightBar';
 import Feed from '../Feed/Feed'
 import NewPost from '../NewPost/NewPost'
+import { UISliceActions } from '../../store/ui-slice';
+import { useSelector, useDispatch } from 'react-redux';
 import './Layout.css'
 
 const Layout = () => {
 
-    const [isNewPostVisible, setIsNewPostVisible] = useState(false);
+    const dispatch = useDispatch();
+    const newPostWindowActive = useSelector(state => state.ui.newPostWindowActive);
 
-    const newPostHandler = () => {
-        setIsNewPostVisible(prevState => !prevState);
+    const newPostWindowToggler = () => {
+        dispatch(UISliceActions.toggleNewPostWindow())
     }
 
     return (
         <div className="LayoutContainer">
-            {isNewPostVisible && <NewPost onCancel={newPostHandler} />}
+            <NewPost onCancel={newPostWindowToggler} active={newPostWindowActive} />
             <Sidebar />
             <Feed />
-            <RightBar onToggleNewPost={newPostHandler} />
+            <RightBar onToggleNewPost={newPostWindowToggler} />
         </div>
     );
 }

@@ -1,39 +1,86 @@
 
 import './NewPost.css';
 import PermMediaIcon from '@material-ui/icons/PermMedia';
-import { Button } from 'reactstrap'
-import { Form, FormGroup, Label, Input } from 'reactstrap';
+import React, { useState } from 'react';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Col, FormText, Form, FormGroup, Label, Input } from 'reactstrap';
+import { UISliceActions } from '../../store/ui-slice';
+import { useRef } from 'react';
+import { configureNewPost, createNewPost, getPosts } from '../../store/post-actions';
+import { useSelector, useDispatch } from 'react-redux';
+import { Avatar, TextField } from '@material-ui/core';
+
 const NewPost = (props) => {
+
+    const uploadedImage = useSelector(state => state.post.uploadedImage)
+    const userId = useSelector(state => state.auth.userData._id);
+    const [postImage, setPostImage] = useState()
+    const [postDesc, setPostDesc] = useState();
+    const dispatch = useDispatch();
+
+
+
+    const postCancelHandler = () => {
+        setPostDesc('')
+        setPostImage([])
+        dispatch(UISliceActions.toggleNewPostWindow());
+    }
+
+    const postSubmitHandler = () => {
+
+        const formData = new FormData();
+        formData.append("userId", userId)
+        formData.append("desc", postDesc)
+        formData.append("postImage", postImage);
+        formData.append("confirm", "1")
+        dispatch(createNewPost(formData));
+        dispatch(getPosts(userId));
+        dispatch(UISliceActions.toggleNewPostWindow())
+
+    }
+
+    const configPostHandler = () => {
+        
+        const formData = new FormData();
+        formData.append("userId", userId)
+        formData.append("desc", postDesc)
+        formData.append("postImage", postImage);
+
+
+        dispatch(configureNewPost(formData))
+    }
+
+
+
     return (
-        <div className="Backdrop">
-            <div className="NewPost">
-                <div className="NewPostWrapper">
-                    <div className="NewPostTop">
+        <div>
 
-                        <img className="ProfileImage" src={process.env.PUBLIC_URL + '/assets/person/1.jpeg'} alt="profileImage" />
-                        <Form>
-                            <FormGroup>
-                                <Label for="exampleEmail">Email</Label>
-                                <Input type="email" name="email" id="exampleEmail" placeholder="with a placeholder" />
-                                <button onClick={props.onCancel}>Cancel</button>
-                            </FormGroup>
-                        </Form>
+            <Modal isOpen={props.active} toggle={props.onCancel} className="NewPostModal" >
+                <form method="post" encType="multipart/form-data">
+                    <div className="Header">
+                        <Avatar className="NewPostProfileAvatar" src={process.env.PUBLIC_URL + '/assets/person/1.jpeg'} />
+                        <TextField name="desc" className="captionField" id="standard-basic" label="Add a caption" value={postDesc} onChange={(e) => setPostDesc(e.target.value)} />
                     </div>
-                    <hr className="NewPostHR" />
-                    <div className="NewPostBottom">
-                        <div className="ShareOptions">
-                            <div className="ShareOption">
-                                <PermMediaIcon className="ShareIcon" /><span className="ShareOptionText">Add a photo</span>
-                            </div>
+                    <div className="NewPostActionButtonWrapper">
+                        <input name="postImage" class="form-control mb-3" type="file" id="formFile" onChange={(e) => setPostImage(e.target.files[0])} />
+                        <Button outline color="success" onClick={configPostHandler}>Upload this image</Button>
+                    </div>
 
+                    <ModalBody className="ModalBody">
+                        {uploadedImage &&
+                            <img src={process.env.PUBLIC_URL + '/uploads/' + uploadedImage} className="NewPostImage" />}
+                    </ModalBody>
+                    <ModalFooter className="ModalFooter">
+                        <div>
+                            <Button color="success" className="PostButton" onClick={postSubmitHandler} block>POST TO SOCIALLY </Button>
+                            <Button color="danger" className="CancelButton" onClick={postCancelHandler} block >Cancel</Button>
                         </div>
-                        //! ButtonHere
-                        <Button color="success">Post</Button>{' '}
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </ModalFooter>
+                </form>
+            </Modal>
+        </div >
     );
+
 }
 
 

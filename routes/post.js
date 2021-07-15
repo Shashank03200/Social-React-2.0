@@ -1,14 +1,43 @@
 const router = require('express').Router();
-
+const multer = require('multer')
+const path = require('path');
+const fs = require('fs');
 const User = require('../models/User')
 const Post = require('../models/Post');
+
+const auth = require('../middleware/auth');
+// const validation = require('../middleware/validation')
+
+let sampleImages = []
+
+// Create the storage
+const storage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, "./client/public/uploads")
+    },
+    filename: (req, file, callback) => {
+        const currentFileName = Date.now() + "_" + file.originalname.split(' ').join('-')
+        sampleImages.push(currentFileName)
+        if (sampleImages.length > 1) {
+            fs.unlink("./client/public/uploads/" + sampleImages.shift(), (err) => {
+                if (err) console.log(err)
+                else
+                    console.log('Deleted file')
+            })
+        }
+        callback(null, currentFileName);
+    }
+});
+
+const upload = multer({ storage: storage })
+
 
 // Get all timeline posts
 router.get('/timeline/:userId', async (req, res) => {
     try {
         const currentUser = await User.findById(req.params.userId);
         const userPosts = await Post.find({ userId: req.params.userId }).sort({ createdAt: 'desc' });
-
+        let friendPosts = [];
         friendPosts = await Promise.all(
             currentUser.following.map((friendId) => {
                 return Post.find({ userId: friendId }).sort({ createdAt: 'desc' })
@@ -20,15 +49,26 @@ router.get('/timeline/:userId', async (req, res) => {
     }
 })
 
-//Create a new post
-router.post('/newpost', async (req, res) => {
-    const newPost = new Post(req.body);
+//Create a new postj
+router.post('/newpost', upload.single('postImage'), async (req, res, next) => {
+
     try {
-        const post = await newPost.save();
-        res.status(200).json("Post saved");
+        const userId = req.body.userId;
+        const desc = req.body.desc;
+        const postImage = req.file.filename;
+        const newPost = await new Post({
+            userId, desc, postImage
+        })
+        if (req.body.confirm === "1") {
+            sampleImages = []
+            const uploadedPost = await newPost.save();
+            return res.status(200).json(uploadedPost);
+        }
+        return res.status(200).json(newPost)
     } catch (err) {
-        res.status(500).json(err)
+        res.status(500).json("Server error");
     }
+
 });
 
 // Update a post
@@ -52,14 +92,16 @@ router.delete('/:postId', async (req, res) => {
 
 // Like Unlike a post
 router.post('/:postId/like', async (req, res) => {
+    console.log('Server Reached')
+    console.log(req.body)
     try {
         const post = await Post.findById(req.params.postId);
         if (post) {
             if (!post.likes.includes(req.body.userId)) {
-                await post.update({ $push: { likes: req.body.userId } });
+                await post.updateOne({ $push: { likes: req.body.userId } });
                 res.status(200).json("The post has been liked");
             } else {
-                await post.update({ $pull: { likes: req.body.userId } });
+                await post.updateOne({ $pull: { likes: req.body.userId } });
                 res.status(200).json("The post has been disliked");
             }
         }
@@ -71,7 +113,7 @@ router.post('/:postId/like', async (req, res) => {
 // Get a post
 router.get("/:postId", async (req, res) => {
     try {
-        console.log('Getting Post');
+
         const post = await Post.findById(req.params.postId);
         res.status(200).json(post)
     } catch (err) {

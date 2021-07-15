@@ -8,36 +8,36 @@ const intialUIState = {
     warning: null
 }
 
-const UISlice = {
+const UISlice = createSlice({
     name: 'UISlice',
-    intitialState: intialUIState,
+    initialState: intialUIState,
     reducers: {
         toggleNewPostWindow(state) {
             state.newPostWindowActive = !state.newPostWindowActive;
         },
-        toggleServerError(state, payload) {
+        toggleServerError(state, action={}) {
             if (!state.serverError) {
-                state.serverError = payload.error
+                state.serverError = action.payload.error
             } else {
                 state.serverError = null;
             }
         },
-        toggleClientError(state, payload) {
+        toggleClientError(state, action={}) {
             if (!state.clientError) {
-                state.clientError = payload.error
+                state.clientError = action.payload.error
             } else {
                 state.clientError = null;
             }
         },
-        toggleIsLoading(state) {
-            state.loadingData = !state.loadingData
+        setIsLoading(state, action) {
+            state.loadingData = action.payload;
         },
-        toggleWarning(state, payload) {
-            state.warning = payload.warning;
+        toggleWarning(state, action) {
+            state.warning = action.payload.warning;
         }
 
     }
-}
+})
 
 export const UISliceActions = UISlice.actions;
 

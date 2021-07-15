@@ -10,9 +10,9 @@ router.post('/:id', async (req, res) => {
     if (req.body.userId == req.params.id || req.body.isAdmin) {
         try {
             // If the password is getting updated
-            console.log(req.body)
+
             if (req.body.password) {
-                console.log('passwrd')
+
                 const salt = await bcrypt.genSalt(10);
                 req.body.password = await bcrypt.hash(req.body.password, hash);
             }
@@ -41,7 +41,7 @@ router.delete("/:id", async (req, res) => {
             if (user) {
                 // If user is found check for the password
                 const isMatching = await bcrypt.compare(req.body.password, user.password);
-                console.log(isMatching);
+
             }
 
             if (isMatching) {
@@ -113,6 +113,18 @@ router.post("/:id/unfollow", async (req, res) => {
 
 })
 
+// Get all the users 
+router.get("/all", async (req, res) => {
+    try {
+        const allUsers = await User.find({}).limit(30);
+        res.status(200).json(allUsers)
+    } catch (err) {
+        res.status(500).json("Cannot fetch users")
+    }
+})
+
+
+
 // Get the user details
 router.get("/:id", async (req, res) => {
     try {
@@ -128,11 +140,6 @@ router.get("/:id", async (req, res) => {
         res.status(400).json(err);
     }
 });
-
-router.get("/", async (req, res) => {
-    const allUsers = await User.find({});
-    res.status(200).json(allUsers)
-})
 
 
 module.exports = router;
