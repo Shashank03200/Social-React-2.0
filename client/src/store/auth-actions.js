@@ -1,55 +1,59 @@
-import { UISliceActions } from "./ui-slice";
-import { authSliceActions } from "./auth-slice";
-import axios from 'axios';
+import { userSliceActions } from "./userInfoSlice";
+import { UISliceActions } from "./UISlice";
 
-export const login = (loginData) => {
-    return (dispatch) => {
-        const startLogin = async (loginData) => {
-            // console.log('Loggin in')
-            const { email, password } = loginData;
-            // (email, password);
-            dispatch(UISliceActions.setIsLoading(true));
-            const response = await axios.post('/api/auth/login', { email, password });
-            if (response.statusText !== 'OK') {
-                dispatch(authSliceActions.authFailed());
-            }
-            else {
-                const data = response.data;
-                dispatch(authSliceActions.authSuccess(data))
-            }
-        }
-        try {
-            startLogin(loginData)
-            dispatch(UISliceActions.setIsLoading(false));
+export const registerUser = (userDetails) => {
+  return async (dispatch) => {
+    try {
+      const response = await fetch("api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userDetails),
+      });
+      if (response.status !== 200) {
+        const data = await response.json();
 
-        } catch (err) {
-            dispatch(UISliceActions.toggleClientError({ error: err }))
-        }
+        dispatch(UISliceActions.setError({ ...data }));
+      } else {
+        const data = await response.json();
+
+        dispatch(userSliceActions.setToken({ ...data }));
+
+        dispatch(
+          UISliceActions.setError({ error: true, msg: "Account created" })
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      localStorage.removeItem("token");
     }
-}
+  };
+};
 
-export const register = (registerData) => {
-    return async (dispatch) => {
-        const startRegister = async () => {
-            dispatch(UISliceActions.setIsLoading(true));
-            const response = await axios.post('/api/auth/register', registerData)
-            if (response.statusText !== 'OK') {
-                dispatch(UISliceActions.toggleServerError(
-                    { error: response.data }
-                ))
-                dispatch(authSliceActions.authFailed());
-            }
-            const data = response.data;
-            dispatch(authSliceActions.authSuccess(data))
+export const loginUser = (userDetails) => {
+  return async (dispatch) => {
+    try {
+      console.log(userDetails);
+      const response = await fetch("api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userDetails),
+      });
+      if (response.status !== 200) {
+        const data = await response.json();
 
-        }
-        try {
-            startRegister(registerData);
-            dispatch(UISliceActions.setIsLoading(false));
+        dispatch(UISliceActions.setError(data));
+      } else {
+        const data = await response.json();
 
-        } catch (err) {
-            dispatch(UISliceActions.toggleClientError({ error: err }))
-        }
-
+        dispatch(userSliceActions.setToken({ ...data }));
+      }
+    } catch (err) {
+      console.log(err);
+      localStorage.removeItem("token");
     }
-}
+  };
+};

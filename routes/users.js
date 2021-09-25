@@ -1,10 +1,11 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
+const auth = require("../middleware/auth");
 const User = require("../models/User");
 
 // Update a user info
-router.post("/:id", async (req, res) => {
+router.post("/:id", auth, async (req, res) => {
   if (req.body.userId == req.params.id || req.body.isAdmin) {
     try {
       // If the password is getting updated
@@ -26,7 +27,7 @@ router.post("/:id", async (req, res) => {
 
 // Delete a user
 // /api/users/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   if (req.body.userId == req.params.id || req.body.isAdmin) {
     // Finding the user using the userId
     try {
@@ -57,16 +58,16 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Follow a user
-router.post("/:id/follow", async (req, res) => {
-  if (req.body.userId !== req.params.id) {
+router.post("/:id/follow", auth, async (req, res) => {
+  if (req.userId !== req.params.id) {
     try {
       const userToFollow = await User.findById(req.params.id);
-      const currentUser = await User.findById(req.body.userId);
+      const currentUser = await User.findById(req.userId);
       console.log(userToFollow.followers.includes(req.params.id));
 
-      if (!userToFollow.followers.includes(req.body.userId)) {
+      if (!userToFollow.followers.includes(req.userId)) {
         await currentUser.updateOne({ $push: { following: req.params.id } });
-        await userToFollow.updateOne({ $push: { followers: req.body.userId } });
+        await userToFollow.updateOne({ $push: { followers: req.userId } });
         res.status(200).json("Followed successfully");
       } else {
         res.status(400).json("You already follow this user.");
@@ -80,7 +81,7 @@ router.post("/:id/follow", async (req, res) => {
 });
 
 // Unfollow a user
-router.post("/:id/unfollow", async (req, res) => {
+router.post("/:id/unfollow", auth, async (req, res) => {
   if (req.body.userId !== req.params.id) {
     try {
       const userToUnfollow = await User.findById(req.params.id);
@@ -107,6 +108,7 @@ router.post("/:id/unfollow", async (req, res) => {
 router.get("/all", async (req, res) => {
   try {
     const allUsers = await User.find({}).limit(30);
+
     res.status(200).json(allUsers);
   } catch (err) {
     res.status(500).json("Cannot fetch users");
