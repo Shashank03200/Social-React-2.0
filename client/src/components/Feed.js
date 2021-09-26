@@ -1,6 +1,6 @@
 import Post from "./Post";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Box } from "@chakra-ui/layout";
 import { useSelector, useDispatch } from "react-redux";
 import { loadTimelinePosts } from "../store/feed-actions";
@@ -11,15 +11,13 @@ const Feed = ({ userData }) => {
   const dispatch = useDispatch();
   console.log("UserId Feed.js", userId);
 
-  const [timelinePosts, setTimelinePosts] = useState([]);
+  const timelinePosts = useSelector((state) => state.feed.timelinePosts);
 
   useEffect(() => {
     if (userId) {
-      dispatch(loadTimelinePosts(userId, setTimelinePosts));
+      dispatch(loadTimelinePosts(userId));
     }
   }, [userId]);
-
-  console.log(timelinePosts);
 
   return (
     <Box flex="5" marginLeft="250px">

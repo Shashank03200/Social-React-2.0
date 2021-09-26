@@ -6,13 +6,20 @@ const feedSlice = createSlice({
     userId: null,
     userProfileImage: null,
     userName: null,
+
+    timelinePosts: undefined,
   },
+
   reducers: {
     setUserData(state, action) {
       const { _id, profileImage, username } = action.payload;
       state.userId = _id;
       state.userProfileImage = profileImage;
       state.userName = username;
+    },
+
+    setTimelinePosts(state, action) {
+      state.timelinePosts = action.payload;
     },
   },
 });

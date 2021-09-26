@@ -25,7 +25,7 @@ export const loadUserDataUsingToken = (token) => {
   };
 };
 
-export const loadTimelinePosts = (userId, setTimelinePosts) => {
+export const loadTimelinePosts = (userId) => {
   return async (dispatch) => {
     console.log(userId);
     const response = await fetch("api/posts/timeline", {
@@ -37,7 +37,7 @@ export const loadTimelinePosts = (userId, setTimelinePosts) => {
     });
     const data = await response.json();
     if (response.status === 200) {
-      setTimelinePosts(data);
+      dispatch(feedSliceActions.setTimelinePosts(data));
     } else {
       throw new Error("Error in loading timeline");
     }
@@ -92,24 +92,20 @@ export const loadUserInfoOfPost = (
   };
 };
 
-export const followUser =
-  (token, userId, isFollowing, setIsFollowing) => async (dispatch) => {
-    try {
-      const response = await fetch(
-        `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-          body: JSON.stringify({ userId }),
-        }
-      );
-      const data = await response.data;
-      console.log(data);
-      setIsFollowing(true);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+export const followUser = (token, userId, isFollowing) => async (dispatch) => {
+  try {
+    const response = await fetch(
+      `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+  } catch (err) {
+    console.log(err);
+  }
+};

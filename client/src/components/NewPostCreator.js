@@ -20,15 +20,18 @@ import {
 } from "@chakra-ui/react";
 import { useSelector, useDispatch } from "react-redux";
 import { createNewPost, loadImageFromDisk } from "../store/post-actions";
+import { loadTimelinePosts } from "../store/feed-actions";
 
 function NewPostCreator(props) {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
+  const userId = useSelector((state) => state.feed.userId);
   const [caption, setCaption] = useState("");
   const [imageFileName, setImageFileName] = useState("");
   const [imageSrc, setImageSrc] = useState(undefined);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageFile, setImageFile] = useState("");
 
   useEffect(() => {
     if (imageSrc === "") {
@@ -38,19 +41,18 @@ function NewPostCreator(props) {
     }
   }, [imageSrc]);
 
-  useEffect(() => {});
-
-  const imageChangeHandler = (event) => {
+  const imageChangeHandler = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append("desc", caption);
+    setImageFile(event.target.files[0]);
     setIsImageLoading(true);
     event.target.files && setImageFileName(event.target.files[0].name);
     formData.append("postImage", event.target.files[0]);
     dispatch(loadImageFromDisk(token, formData, setImageSrc));
   };
 
-  const postSubmitHandler = (event) => {
+  const postSubmitHandler = async (event) => {
     event.preventDefault();
     if (!imageSrc || imageSrc === "") {
       setShowErrorModal(true);
@@ -62,6 +64,8 @@ function NewPostCreator(props) {
     formData.append("confirm", "1");
 
     dispatch(createNewPost(token, formData));
+    dispatch(loadTimelinePosts(userId));
+    props.onModalClose();
   };
 
   return (

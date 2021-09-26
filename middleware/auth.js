@@ -8,7 +8,7 @@ function auth(req, res, next) {
     if (!token)
       return res.status(401).json({ msg: "No token authorization denied" });
     // Verify decoded
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN);
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     console.log(decoded);
     // Add user from payload
     req.userId = decoded.id;

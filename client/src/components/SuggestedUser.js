@@ -9,17 +9,15 @@ import { followUser } from "../store/feed-actions";
 const SuggestedUser = (props) => {
   const token = useSelector((state) => state.user.token);
   const dispatch = useDispatch();
-  const [isFollowing, setIsFollowing] = useState();
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
-    if (!props.isLoading) {
-      setIsFollowing(props.currentuserFollowings.includes(props.userId));
-    }
-  }, [props.isLoading]);
+    setIsFollowing(props.currentuserFollowings.includes(props.userId));
+  }, []);
 
   const followHandler = () => {
     dispatch(followUser(token, props.userId, isFollowing, setIsFollowing));
-    console.log("Followed");
+    setIsFollowing((prevState) => !prevState);
   };
   return (
     <LazyLoadComponent>

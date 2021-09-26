@@ -27,10 +27,16 @@ router.post("/register", async (req, res) => {
     const savedUser = await newUser.save();
 
     // Generate access token
-    jwt.sign({ id: savedUser._id }, process.env.ACCESS_TOKEN, (err, token) => {
-      if (err) res.status(401).json({ error: true, msg: "Unauthorized user" });
-      res.status(200).json({ sucess: true, token });
-    });
+    jwt.sign(
+      { id: savedUser._id },
+      process.env.JWT_ACCESS_SECRET,
+
+      (err, token) => {
+        if (err)
+          res.status(401).json({ error: true, msg: "Unauthorized user" });
+        res.status(200).json({ sucess: true, token });
+      }
+    );
   } catch (err) {
     res.status(500).json({ error: true, msg: "Internal Server Error" });
   }
@@ -50,7 +56,7 @@ router.post("/login", async (req, res) => {
       res.status(401).json({ error: true, msg: "Wrong Password" });
 
     // Generate an access token
-    jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN, (err, token) => {
+    jwt.sign({ id: user._id }, process.env.JWT_ACCESS_SECRET, (err, token) => {
       if (err)
         res
           .status(401)
