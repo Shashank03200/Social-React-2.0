@@ -1,18 +1,41 @@
-import { Box, Avatar, Text, Icon, Image, HStack } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
+import { Box, Image } from "@chakra-ui/react";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { LazyLoadComponent } from "react-lazy-load-image-component";
-import { FaEllipsisV } from "react-icons/fa";
-import { MdFavoriteBorder } from "react-icons/md";
-import { MdComment } from "react-icons/md";
+
 import { loadUserInfoOfPost } from "../store/feed-actions";
+import { checkLikeStatus, likeDislikePostHandler } from "../store/post-actions";
+import PostFooter from "./PostFooter";
+import Comments from "./Comments";
+import CommentInput from "./CommentInput";
+import LatestComments from "./LatestComments";
+import PostHeader from "./PostHeader";
+import PostSkeleton from "./PostSkeleton";
 
 const Post = ({ postData }) => {
-  const { _id: postId } = postData;
+  console.log(postData);
+  const { _id: postId, deletePossible } = postData;
   const dispatch = useDispatch();
 
+  const token = useSelector((state) => state.user.token);
+  console.log(postData._id);
   const [userProfileSrc, setUserProfileSrc] = useState(undefined);
   const [username, setUsername] = useState(undefined);
+  const [isLiked, setIsLiked] = useState(undefined);
+  const [commentsVisibility, setCommentsVisibility] = useState(false);
+
+  const [newCommentData, setNewCommentData] = useState(undefined);
+  const [isTouched, setIsTouched] = useState(false);
+  console.log("Post id", postData.postId);
+
+  useEffect(() => {
+    if (postId) {
+      checkLikeStatus(token, postId).then((response) => {
+        console.log("Like Response", response);
+        setIsLiked(response);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (postId) {
@@ -21,11 +44,27 @@ const Post = ({ postData }) => {
       );
     }
   }, [postId]);
+  console.log(postId);
+  const postLikeActivityHandler = () => {
+    setIsTouched(true);
+    dispatch(likeDislikePostHandler(token, postId, setIsLiked));
+  };
+
+  const commentsVisibilityHandler = () => {
+    setCommentsVisibility((prevState) => !prevState);
+  };
+
+  const newCommentAppendHandler = (data) => {
+    setNewCommentData(data);
+  };
+
+  if (!postId) {
+    return <PostSkeleton />;
+  }
 
   return (
     <LazyLoadComponent>
       <Box
-        padding="12px"
         backgroundColor="white"
         width="600px"
         marginBottom="40px"
@@ -33,50 +72,60 @@ const Post = ({ postData }) => {
         border="1px solid #ccc"
         mt="10px"
       >
-        <Box padding="4px" display="flex" justifyContent="space-between">
-          <Box marginX="5px" display="flex" alignItems="center" mb="12px">
-            <Avatar
-              width="28px"
-              height="28px"
-              size="sm"
-              name={username}
-              src={`${process.env.PUBLIC_URL}/assets/uploads/users/${userProfileSrc}`}
-              mr="16px"
-              className="action-icon"
+        <Box padding="12px">
+          {username && (
+            <PostHeader
+              username={username}
+              userProfileSrc={userProfileSrc}
+              postId={postId}
+              deletionPossible={deletePossible}
             />
-            <Text fontSize="14px" fontWeight="500" className="action-icon">
-              {username}
-            </Text>
-          </Box>
-          <Box className="action-icon">
-            <Icon as={FaEllipsisV} className="action-icon" />
-          </Box>
-        </Box>
-        <Box fontSize="14px">{postData.desc}</Box>
-        <Box maxHeight="600px" overflow="hidden">
-          <Box>
-            <Image
-              src={`${process.env.PUBLIC_URL}/assets/uploads/posts/${postData.postImage}`}
-              objectFit="cover"
-            />
-          </Box>
-        </Box>
+          )}
 
-        <Box marginY="10px">
-          <HStack spacing="10px">
-            <Icon
-              as={MdFavoriteBorder}
-              h="32px"
-              w="32px"
-              className="action-icon"
-            />
-            <Icon as={MdComment} h="30px" w="30px" className="action-icon" />
-          </HStack>
-          <Box marginY="8px" fontSize="13px">
-            {postData.likes.length > 0
-              ? `${postData.likes.length} likes`
-              : "No likes"}
+          <Box fontSize="14px">{postData.desc}</Box>
+
+          <Box maxHeight="600px" overflow="hidden">
+            <Box d="flex" justifyContent="center" alignItems="center">
+              <Image
+                src={`${process.env.PUBLIC_URL}/assets/uploads/posts/${postData.postImage}`}
+                objectFit="cover"
+                minHeight="500px"
+              />
+            </Box>
           </Box>
+
+          <PostFooter
+            likes={postData.likes}
+            isLiked={isLiked}
+            setIsLiked={setIsLiked}
+            onLikeButtonClick={postLikeActivityHandler}
+            commentsVisibility={commentsVisibility}
+            onCommentButtonClick={commentsVisibilityHandler}
+            isTouched={isTouched}
+          />
+
+          {commentsVisibility && postId && (
+            <Comments
+              isVisible={commentsVisibility}
+              postId={postId}
+              newCommentData={newCommentData}
+              setCommentData={setNewCommentData}
+            />
+          )}
+          {!commentsVisibility && postId && (
+            <LatestComments
+              postId={postId}
+              isVisible={commentsVisibility}
+              newCommentData={newCommentData}
+              setCommentData={setNewCommentData}
+            />
+          )}
+        </Box>
+        <Box>
+          <CommentInput
+            postId={postId}
+            appendComment={newCommentAppendHandler}
+          />
         </Box>
       </Box>
     </LazyLoadComponent>

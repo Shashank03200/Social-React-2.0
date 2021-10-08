@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
+const commentSchema = require("./Comment");
 
-const PostSchema = new mongoose.Schema(
+const Schema = mongoose.Schema;
+
+const PostSchema = new Schema(
   {
     userId: {
       type: String,
@@ -17,6 +20,10 @@ const PostSchema = new mongoose.Schema(
     likes: {
       type: Array,
       default: [],
+    },
+    comments: {
+      type: [{ type: Schema.Types.ObjectId }],
+      ref: "Comment",
     },
   },
   { timestamps: true }

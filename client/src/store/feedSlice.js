@@ -6,8 +6,9 @@ const feedSlice = createSlice({
     userId: null,
     userProfileImage: null,
     userName: null,
-
-    timelinePosts: undefined,
+    pageNo: 1,
+    morePosts: true,
+    timelinePosts: [],
   },
 
   reducers: {
@@ -19,7 +20,17 @@ const feedSlice = createSlice({
     },
 
     setTimelinePosts(state, action) {
-      state.timelinePosts = action.payload;
+      state.timelinePosts = [...state.timelinePosts, ...action.payload];
+    },
+    incrementPage(state) {
+      state.pageNo += 1;
+      console.log(state.pageNo);
+    },
+    setMorePostsBoolean(state, action) {
+      state.morePosts = action.payload;
+    },
+    addNewPost(state, action) {
+      state.timelinePosts.unshift(action.payload);
     },
   },
 });

@@ -1,6 +1,4 @@
-import { Container, Avatar, Box, Text } from "@chakra-ui/react";
-
-import { useSelector } from "react-redux";
+import { Avatar, Box, Text } from "@chakra-ui/react";
 
 const UserDetailsCard = ({ userData }) => {
   if (!userData) {

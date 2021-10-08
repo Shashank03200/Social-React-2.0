@@ -34,7 +34,6 @@ export const registerUser = (userDetails) => {
 export const loginUser = (userDetails) => {
   return async (dispatch) => {
     try {
-      console.log(userDetails);
       const response = await fetch("api/auth/login", {
         method: "POST",
         headers: {

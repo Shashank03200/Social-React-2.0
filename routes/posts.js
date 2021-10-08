@@ -6,8 +6,20 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 
 const auth = require("../middleware/auth");
-const validation = require("../middleware/validation");
+
 let sampleImages = [];
+
+const imageFilter = (req, file, cb) => {
+  if (
+    file.mimetype == "image/png" ||
+    file.mimetype == "image/jpeg" ||
+    file.mimetype == "image/jpg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 //Create the storage
 
@@ -37,20 +49,37 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Get all timeline posts
-router.post("/timeline", async (req, res) => {
+router.get("/timeline", auth, async (req, res) => {
   try {
-    console.log(req.body.userId);
-    const currentUser = await User.findById(req.body.userId);
-    const userPosts = await Post.find({ userId: req.body.userId }).sort({
-      createdAt: "desc",
-    });
+    const page = parseInt(req.query.page, 10);
+    const count = parseInt(req.query.count, 10);
+
+    const currentUser = await User.findById(req.userId);
+    const userPosts = await Post.find({ userId: req.userId })
+      .sort({
+        createdAt: "desc",
+      })
+      .skip(count * (page - 1))
+      .limit(count);
     let friendPosts = [];
     friendPosts = await Promise.all(
       currentUser.following.map((friendId) => {
-        return Post.find({ userId: friendId }).sort({ createdAt: "desc" });
+        return Post.find({ userId: friendId })
+          .sort({ createdAt: "desc" })
+          .skip(count * (page - 1))
+          .limit(count);
       })
     );
-    res.status(200).json(userPosts.concat(...friendPosts));
+
+    const totalPosts = userPosts.concat(...friendPosts);
+
+    const finalPosts = totalPosts.map((post) => {
+      return {
+        ...post._doc,
+        deletePossible: post.userId == req.userId,
+      };
+    });
+    res.status(200).json(finalPosts);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -89,7 +118,8 @@ router.post("/newpost", auth, upload.single("postImage"), async (req, res) => {
 router.delete("/:postId", auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId);
-    if (post.userId == req.body.userId) {
+
+    if (post.userId == req.userId) {
       await Post.findByIdAndDelete(req.params.postId);
       fs.unlinkSync("./client/public/assets/uploads/posts/" + post.postImage);
       res.status(200).json("Post deleted.");
@@ -103,17 +133,23 @@ router.delete("/:postId", auth, async (req, res) => {
 
 // Like Unlike a post
 router.post("/:postId/like", auth, async (req, res) => {
-  console.log("Server Reached");
-
   try {
     const post = await Post.findById(req.params.postId);
+
     if (post) {
-      if (!post.likes.includes(req.body.userId)) {
-        await post.updateOne({ $push: { likes: req.body.userId } });
-        res.status(200).json("The post has been liked");
+      if (!post.likes.includes(req.userId)) {
+        await post.updateOne({ $push: { likes: req.userId } });
+        await post.save();
+        res
+          .status(200)
+          .json({ currentState: "liked", msg: "The post has been liked" });
       } else {
-        await post.updateOne({ $pull: { likes: req.body.userId } });
-        res.status(200).json("The post has been disliked");
+        await post.updateOne({ $pull: { likes: req.userId } });
+        await post.save();
+        res.status(200).json({
+          currentState: "disliked",
+          msg: "The post has been disliked",
+        });
       }
     }
   } catch (err) {
@@ -126,6 +162,24 @@ router.get("/:postId", async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId);
     res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
+});
+
+router.get("/:postId/likestatus", auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (post) {
+      if (post.likes.includes(req.userId)) {
+        console.log(post._id, " ", "true");
+        return res.status(200).json({ likeState: true });
+      } else {
+        console.log(post._id, " ", "false");
+
+        return res.status(200).json({ likeState: false });
+      }
+    }
   } catch (err) {
     res.status(500).json(err.message);
   }

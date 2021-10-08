@@ -27,8 +27,6 @@ function SuggestedUserList({ suggestedUsers }) {
     }
   }, [token]);
 
-  console.log("Suggested", suggestedUsers);
-
   const suggestedUsersList =
     suggestedUsers &&
     suggestedUsers.map((suggestedUser, index) => {

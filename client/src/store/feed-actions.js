@@ -5,7 +5,6 @@ import axios from "axios";
 export const loadUserDataUsingToken = (token) => {
   return async (dispatch) => {
     try {
-      console.log(token);
       const response = await fetch("/api/auth/user", {
         method: "GET",
         headers: {
@@ -25,25 +24,28 @@ export const loadUserDataUsingToken = (token) => {
   };
 };
 
-export const loadTimelinePosts = (userId) => {
+export const loadTimelinePosts = (token, page) => {
+  console.log(page);
   return async (dispatch) => {
-    console.log(userId);
-    const response = await fetch("api/posts/timeline", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }),
-    });
-    const data = await response.json();
-    if (response.status === 200) {
-      dispatch(feedSliceActions.setTimelinePosts(data));
-    } else {
-      throw new Error("Error in loading timeline");
-    }
     try {
+      const response = await fetch(`api/posts/timeline?page=${page}&count=2`, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      console.log("Fetched Data", data);
+      if (response.status === 200) {
+        if (data.length === 0) {
+          dispatch(feedSliceActions.setMorePostsBoolean(false));
+        } else dispatch(feedSliceActions.setTimelinePosts(data));
+      } else {
+        throw new Error("Error in loading timeline");
+      }
     } catch (err) {
-      console.log(err.message);
+      dispatch(feedSliceActions.setMorePostsBoolean(false));
     }
   };
 };
@@ -104,7 +106,6 @@ export const followUser = (token, userId, isFollowing) => async (dispatch) => {
       }
     );
     const data = await response.json();
-    console.log(data);
   } catch (err) {
     console.log(err);
   }

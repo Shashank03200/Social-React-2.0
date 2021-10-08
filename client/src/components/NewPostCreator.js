@@ -26,6 +26,8 @@ function NewPostCreator(props) {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.feed.userId);
+  const page = useSelector((state) => state.feed.pageNo);
+
   const [caption, setCaption] = useState("");
   const [imageFileName, setImageFileName] = useState("");
   const [imageSrc, setImageSrc] = useState(undefined);
@@ -41,18 +43,27 @@ function NewPostCreator(props) {
     }
   }, [imageSrc]);
 
-  const imageChangeHandler = async (event) => {
+  const imageChangeHandler = (event) => {
     event.preventDefault();
+    if (!event.target.files) {
+      setIsImageLoading((prevState) => !prevState);
+      return;
+    }
     const formData = new FormData();
     formData.append("desc", caption);
     setImageFile(event.target.files[0]);
-    setIsImageLoading(true);
-    event.target.files && setImageFileName(event.target.files[0].name);
-    formData.append("postImage", event.target.files[0]);
-    dispatch(loadImageFromDisk(token, formData, setImageSrc));
+    setIsImageLoading((prevState) => !prevState);
+    if (!event.target.files[0]) {
+      setIsImageLoading((prevState) => !prevState);
+      return;
+    } else {
+      event.target.files && setImageFileName(event.target.files[0].name);
+      formData.append("postImage", event.target.files[0]);
+      dispatch(loadImageFromDisk(token, formData, setImageSrc));
+    }
   };
 
-  const postSubmitHandler = async (event) => {
+  const postSubmitHandler = (event) => {
     event.preventDefault();
     if (!imageSrc || imageSrc === "") {
       setShowErrorModal(true);
@@ -63,8 +74,16 @@ function NewPostCreator(props) {
     formData.append("postImage", event.target.postImage.files[0]);
     formData.append("confirm", "1");
 
-    dispatch(createNewPost(token, formData));
-    dispatch(loadTimelinePosts(userId));
+    dispatch(createNewPost(token, formData, page))
+      .then(() => {
+        dispatch(loadTimelinePosts(token));
+      })
+      .then(() => {
+        setImageFile("");
+        setCaption("");
+        setImageSrc("");
+      });
+
     props.onModalClose();
   };
 

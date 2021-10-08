@@ -43,7 +43,7 @@ const RightBar = ({ userData }) => {
       flex="5"
       position="sticky"
       top="50px"
-      height="100vh"
+      height="90vh"
       d="flex"
       flexDirection="column"
       paddingLeft="5vw"
