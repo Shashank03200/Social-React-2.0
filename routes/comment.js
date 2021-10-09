@@ -19,9 +19,11 @@ const fetchUserDataViaCommentId = async (req, commentIds) => {
 
   for (let i = 0; i < comments.length; i++) {
     const completeObject = {
-      ...comments[i]._doc,
       ...commentedUsers[i]._doc,
+      ...comments[i]._doc,
     };
+
+    // console.log(completeObject);
 
     const { profileImage, username, commentText, _id } = completeObject;
     console.log(completeObject);
@@ -41,6 +43,7 @@ router.get("/:postId/all", auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId).populate("comments");
     if (post) {
+      console.log(post);
       let commentsWithUserDetails = [];
       const commentIds = post.comments;
       commentsWithUserDetails = await fetchUserDataViaCommentId(
@@ -115,11 +118,20 @@ router.delete("/:commentId", auth, async (req, res) => {
     const post = await Post.findById(req.body.postId).populate("comments");
 
     if (post) {
-      const removedComment = await Post.findByIdAndUpdate(req.body.postId, {
-        $pull: { comments: { _id: objectId(req.params.commentId) } },
+      const comments = await post.comments;
+
+      comments.forEach((comment) => {
+        console.log(comment._id.toString() !== req.params.commentId);
       });
 
-      res.status(200).json(removedComment);
+      const newComments = comments.filter(
+        (comment) => comment._id.toString() !== req.params.commentId
+      );
+
+      res.status(200).json(newComments);
+      post.comments = newComments;
+      await post.save();
+      // res.status(200).json("comment deleted");
     }
   } catch (error) {
     res.status(500).json(error.message);

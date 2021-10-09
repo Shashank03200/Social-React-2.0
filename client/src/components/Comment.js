@@ -17,10 +17,10 @@ function Comment(props) {
     isRemovable,
     _id: commentId,
   } = props.commentData;
-
+  console.log("Hehe ", commentId);
   const commentDeleteHandler = () => {
-    console.log("Deleting");
     dispatch(commentDeleteActionHandler(token, commentId, props.postId));
+    props.onDelete();
   };
 
   return (
@@ -74,4 +74,4 @@ function Comment(props) {
   );
 }
 
-export default Comment;
+export default React.memo(Comment);

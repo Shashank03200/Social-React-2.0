@@ -9,6 +9,7 @@ function LatestComments(props) {
 
   const [latestComments, setLatestComments] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [refetchData, setRefetchData] = useState(false);
 
   useEffect(() => {
     try {
@@ -21,12 +22,10 @@ function LatestComments(props) {
         });
 
         const data = await response.data;
-        console.log("Latest Comments", data);
+
         if (data.commentsWithUserDetails) {
           setLatestComments(data.commentsWithUserDetails);
-          console.log(data.commentsWithUserDetails);
           setIsLoading(false);
-          console.log("Comments loaded");
         } else {
           setLatestComments([]);
           setIsLoading(false);
@@ -37,7 +36,9 @@ function LatestComments(props) {
     } catch (err) {
       console.log(err.message);
     }
-  }, [props.postId]);
+
+    return () => setRefetchData(false);
+  }, [props.postId, refetchData]);
 
   useEffect(() => {
     if (props.newCommentData) {
@@ -55,9 +56,16 @@ function LatestComments(props) {
 
   let commentList = [];
   if (latestComments !== undefined) {
-    commentList = latestComments.map((comment) => (
-      <Comment postId={props.postId} commentData={comment} key={comment._id} />
-    ));
+    commentList = latestComments.map((comment) => {
+      return (
+        <Comment
+          postId={props.postId}
+          commentData={comment}
+          key={comment._id}
+          onDelete={() => setRefetchData(true)}
+        />
+      );
+    });
   }
   return (
     <Box mx="-4px" py="0px">

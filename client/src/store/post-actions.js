@@ -118,6 +118,7 @@ export const postDeleteActionHandler = (token, postId) => {
 
 export const commentDeleteActionHandler = (token, commentId, postId) => {
   return async (dispatch) => {
+    console.log(commentId, postId);
     const response = await axios({
       method: "delete",
       url: `api/comments/${commentId}`,

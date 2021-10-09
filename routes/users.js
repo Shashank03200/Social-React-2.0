@@ -107,7 +107,7 @@ router.post("/:id/unfollow", auth, async (req, res) => {
 // Get all the users
 router.get("/all", async (req, res) => {
   try {
-    const allUsers = await User.find({}).limit(30);
+    const allUsers = await User.find({}).limit(5);
 
     res.status(200).json(allUsers);
   } catch (err) {

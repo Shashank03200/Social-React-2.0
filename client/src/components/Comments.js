@@ -10,6 +10,7 @@ function Comments(props) {
   const token = useSelector((state) => state.user.token);
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState();
+  const [refetchComments, setRefetchComments] = useState(false);
 
   useEffect(() => {
     try {
@@ -32,7 +33,9 @@ function Comments(props) {
     } catch (err) {
       console.log(err.message);
     }
-  }, []);
+
+    return () => setRefetchComments(false);
+  }, [refetchComments]);
 
   useEffect(() => {
     if (props.newCommentData && props.isVisible) {
@@ -48,7 +51,12 @@ function Comments(props) {
   let commentList = [];
   if (comments !== []) {
     commentList = comments.map((comment) => (
-      <Comment commentData={comment} key={comment._id} postId={props.postId} />
+      <Comment
+        commentData={comment}
+        key={comment._id}
+        postId={props.postId}
+        onDelete={() => setRefetchComments(true)}
+      />
     ));
   }
   return (

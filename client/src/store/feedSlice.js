@@ -32,6 +32,14 @@ const feedSlice = createSlice({
     addNewPost(state, action) {
       state.timelinePosts.unshift(action.payload);
     },
+    resetUserData(state) {
+      state.userId = null;
+      state.userProfileImage = null;
+      state.userName = null;
+      state.pageNo = 1;
+      state.morePosts = true;
+      state.timelinePosts = [];
+    },
   },
 });
 

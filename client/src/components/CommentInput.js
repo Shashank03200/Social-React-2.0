@@ -33,11 +33,15 @@ function CommentInput(props) {
 
       const data = await response.json();
 
+      const newCommentId =
+        data.updated.comments[data.updated.comments.length - 1];
+      console.log("New id", newCommentId);
+
       props.appendComment({
         commentText: text,
         profileImage,
         username,
-        commentId: data._id,
+        _id: newCommentId,
         isRemovable: true,
       });
       setText("");
