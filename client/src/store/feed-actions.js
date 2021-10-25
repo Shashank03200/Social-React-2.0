@@ -1,41 +1,49 @@
 import { UISliceActions } from "./UISlice";
 import { feedSliceActions } from "./feedSlice";
 import axios from "axios";
+import { userSliceActions } from "./userInfoSlice";
+import routeInstance from "../routes.instance";
 
-export const loadUserDataUsingToken = (token) => {
+export const loadUserDataUsingToken = (accessToken) => {
   return async (dispatch) => {
     try {
-      const response = await fetch("/api/auth/user", {
-        method: "GET",
+      const response = await routeInstance({
+        method: "get",
+        url: "/api/auth/user",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: "Bearer " + accessToken,
         },
       });
-
-      const data = await response.json();
-
-      dispatch(feedSliceActions.setUserData({ ...data }));
+      console.log(response);
+      if (response.status !== 200) {
+        dispatch(userSliceActions.removeToken());
+        throw new Error("Please login again");
+      } else {
+        const data = await response.data;
+        console.log("Userdata " + data);
+        dispatch(feedSliceActions.setUserData({ ...data }));
+      }
     } catch (err) {
-      dispatch(
-        UISliceActions.setError({ error: true, msg: "Client Side Error" })
-      );
+      dispatch(userSliceActions.setAccessTokenInvalid());
     }
   };
 };
 
-export const loadTimelinePosts = (token, page) => {
+export const loadTimelinePosts = (accessToken, page) => {
   console.log(page);
   return async (dispatch) => {
     try {
-      const response = await fetch(`api/posts/timeline?page=${page}&count=2`, {
+      const response = await routeInstance({
+        url: `api/posts/timeline?page=${page}&count=2`,
         method: "GET",
         headers: {
-          Authorization: token,
           "Content-Type": "application/json",
+          Authorization: "Bearer " + accessToken,
         },
       });
-      const data = await response.json();
+
+      const data = await response.data;
       console.log("Fetched Data", data);
       if (response.status === 200) {
         if (data.length === 0) {
@@ -50,24 +58,25 @@ export const loadTimelinePosts = (token, page) => {
   };
 };
 
-export const loadSuggestedUsers = (userId, token, setSuggestedUsersList) => {
+export const loadSuggestedUsers = (
+  userId,
+  accessToken,
+  setSuggestedUsersList
+) => {
   return async (dispatch) => {
     try {
-      let currentUserFollowingPeopleList = [];
-      const headers = { Authorization: token };
-      axios
-        .get("/api/auth/user", { headers })
-        .then(
-          (response) =>
-            (currentUserFollowingPeopleList = response.data.following)
-        );
+      let currentUserFollowingList = [];
+      const headers = { Authorization: "Bearer " + accessToken };
+      routeInstance.get("/api/auth/user", { headers }).then((response) => {
+        currentUserFollowingList = response.data.following;
+      });
+      console.log("Current User followings: ", currentUserFollowingList);
+      const response = await routeInstance("api/users/all", { headers });
+      const allUsers = await response.data;
 
-      const response = await axios("api/users/all");
-      const data = await response.data;
-      const suggestedUsers = data.filter(
+      const suggestedUsers = allUsers.filter(
         (user) =>
-          user._id !== userId &&
-          !currentUserFollowingPeopleList.includes(user._id)
+          user._id !== userId && !currentUserFollowingList.includes(user._id)
       );
 
       setSuggestedUsersList(suggestedUsers);
@@ -77,36 +86,37 @@ export const loadSuggestedUsers = (userId, token, setSuggestedUsersList) => {
   };
 };
 
-export const loadUserInfoOfPost = (
-  postUserId,
-  setUserProfileSrc,
-  setUsername
-) => {
-  return async (dispatch) => {
+// export const loadUserInfoOfPost = (
+//   postUserId,
+//   setUserProfileSrc,
+//   setUsername
+// ) => {
+//   return async (dispatch) => {
+//     try {
+//       const response = await axios.get(`api/users/${postUserId}`);
+
+//       const data = await response.data;
+
+//       setUserProfileSrc(data.profileImage);
+//       setUsername(data.username);
+//     } catch (error) {}
+//   };
+// };
+
+export const followUser =
+  (accessToken, userId, isFollowing) => async (dispatch) => {
     try {
-      const response = await axios.get(`api/users/${postUserId}`);
-
-      const data = await response.data;
-
-      setUserProfileSrc(data.profileImage);
-      setUsername(data.username);
-    } catch (error) {}
-  };
-};
-
-export const followUser = (token, userId, isFollowing) => async (dispatch) => {
-  try {
-    const response = await fetch(
-      `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
-      {
+      const response = await routeInstance({
+        url: `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
         method: "POST",
         headers: {
-          Authorization: token,
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + accessToken,
         },
-      }
-    );
-    const data = await response.json();
-  } catch (err) {
-    console.log(err);
-  }
-};
+      });
+
+      const data = await response.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 function CommentInput(props) {
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const { userName: username, userProfileImage: profileImage } = useSelector(
     (state) => state.feed
   );
@@ -20,30 +20,22 @@ function CommentInput(props) {
 
   const commentPostHandler = async () => {
     try {
-      const response = await fetch(`/api/comments/${props.postId}/new`, {
-        method: "POST",
+      const response = await axios({
+        url: `/api/comments/${props.postId}/new`,
+        method: "post",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: "Bearer " + accessToken,
         },
-        body: JSON.stringify({
+        data: {
           commentText: text,
-        }),
+        },
       });
 
-      const data = await response.json();
+      const data = await response.data;
+      console.log("COmment data: ", data);
 
-      const newCommentId =
-        data.updated.comments[data.updated.comments.length - 1];
-      console.log("New id", newCommentId);
-
-      props.appendComment({
-        commentText: text,
-        profileImage,
-        username,
-        _id: newCommentId,
-        isRemovable: true,
-      });
+      props.appendComment(data);
       setText("");
     } catch (err) {
       console.log(err);

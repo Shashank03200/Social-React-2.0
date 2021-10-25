@@ -28,7 +28,7 @@ function PostHeader(props) {
       <Box className="action-icon">
         <PostContextMenu
           postId={props.postId}
-          deletionPossible={props.deletionPossible}
+          postDeletePossible={props.postDeletePossible}
         />
       </Box>
     </Box>

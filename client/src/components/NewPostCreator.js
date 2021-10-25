@@ -24,7 +24,7 @@ import { loadTimelinePosts } from "../store/feed-actions";
 
 function NewPostCreator(props) {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const userId = useSelector((state) => state.feed.userId);
   const page = useSelector((state) => state.feed.pageNo);
 
@@ -59,7 +59,7 @@ function NewPostCreator(props) {
     } else {
       event.target.files && setImageFileName(event.target.files[0].name);
       formData.append("postImage", event.target.files[0]);
-      dispatch(loadImageFromDisk(token, formData, setImageSrc));
+      dispatch(loadImageFromDisk(accessToken, formData, setImageSrc));
     }
   };
 
@@ -74,9 +74,9 @@ function NewPostCreator(props) {
     formData.append("postImage", event.target.postImage.files[0]);
     formData.append("confirm", "1");
 
-    dispatch(createNewPost(token, formData, page))
+    dispatch(createNewPost(accessToken, formData, page))
       .then(() => {
-        dispatch(loadTimelinePosts(token));
+        dispatch(loadTimelinePosts(accessToken));
       })
       .then(() => {
         setImageFile("");

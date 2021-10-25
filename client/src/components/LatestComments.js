@@ -5,11 +5,13 @@ import Comment from "./Comment";
 import axios from "axios";
 
 function LatestComments(props) {
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
 
   const [latestComments, setLatestComments] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [refetchData, setRefetchData] = useState(false);
+
+  console.log(props.newCommentData);
 
   useEffect(() => {
     try {
@@ -18,13 +20,13 @@ function LatestComments(props) {
         const response = await axios({
           url: `/api/comments/${props.postId}/latest`,
           method: "get",
-          headers: { Authorization: token },
+          headers: { Authorization: "Bearer " + accessToken },
         });
 
         const data = await response.data;
 
-        if (data.commentsWithUserDetails) {
-          setLatestComments(data.commentsWithUserDetails);
+        if (response.status === 200) {
+          setLatestComments(data);
           setIsLoading(false);
         } else {
           setLatestComments([]);
@@ -43,6 +45,7 @@ function LatestComments(props) {
   useEffect(() => {
     if (props.newCommentData) {
       if (latestComments) {
+        console.log("Heloe", props.newCommentData);
         setLatestComments((prevComments) => [
           ...prevComments,
           props.newCommentData,
@@ -67,9 +70,18 @@ function LatestComments(props) {
       );
     });
   }
+
   return (
     <Box mx="-4px" py="0px">
-      {latestComments ? isLoading ? <Spinner size="md" /> : commentList : null}
+      {latestComments ? (
+        isLoading ? (
+          <Box d="flex" justifyContent="center">
+            <Spinner size="md" />
+          </Box>
+        ) : (
+          commentList
+        )
+      ) : null}
       {latestComments === [] && <p>No recent comments</p>}
     </Box>
   );

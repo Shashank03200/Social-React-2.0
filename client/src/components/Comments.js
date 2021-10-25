@@ -1,13 +1,14 @@
 import { React, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, Center, Spinner } from "@chakra-ui/react";
-
+import routeInstance from "../routes.instance";
 import Comment from "./Comment";
 
 import axios from "axios";
 
 function Comments(props) {
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("TOken", accessToken);
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState();
   const [refetchComments, setRefetchComments] = useState(false);
@@ -16,13 +17,13 @@ function Comments(props) {
     try {
       const loadComments = async () => {
         setIsLoading(true);
-        const response = await axios({
+        const response = await routeInstance({
           url: `/api/comments/${props.postId}/all`,
           method: "get",
-          headers: { Authorization: token },
+          headers: { Authorization: "Bearer " + accessToken },
         });
 
-        const data = response.data.commentsWithUserDetails;
+        const data = response.data;
         setComments(data);
         setIsLoading(false);
       };

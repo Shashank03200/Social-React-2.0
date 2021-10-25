@@ -7,7 +7,7 @@ import feedSliceReducer from "./feedSlice";
 const store = configureStore({
   reducer: {
     user: userSliceReducer,
-    ui: uiSliceReducer,
+    UISlice: uiSliceReducer,
     feed: feedSliceReducer,
   },
 });

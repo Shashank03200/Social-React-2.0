@@ -2,13 +2,15 @@ const jwt = require("jsonwebtoken");
 
 function auth(req, res, next) {
   try {
-    const token = req.header("Authorization");
-    // Check for token
-    console.log("Token ", token);
-    if (!token)
-      return res.status(401).json({ msg: "No token authorization denied" });
+    const accessToken = req.header("Authorization");
+    // Check for accessToken
+    console.log("accessToken ", accessToken);
+    if (!accessToken)
+      return res
+        .status(401)
+        .json({ msg: "No accessToken authorization denied" });
     // Verify decoded
-    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
     console.log(decoded);
     // Add user from payload
     req.userId = decoded.id;

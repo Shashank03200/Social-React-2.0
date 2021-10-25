@@ -6,9 +6,11 @@ const Schema = mongoose.Schema;
 const PostSchema = new Schema(
   {
     userId: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
+
     desc: {
       type: String,
       max: 500,
@@ -18,11 +20,13 @@ const PostSchema = new Schema(
       default: "",
     },
     likes: {
-      type: Array,
+      type: [{ type: Schema.Types.ObjectId }],
       default: [],
+      ref: "User",
     },
     comments: {
       type: [{ type: Schema.Types.ObjectId }],
+      default: [],
       ref: "Comment",
     },
   },

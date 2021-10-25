@@ -22,6 +22,7 @@ const feedSlice = createSlice({
     setTimelinePosts(state, action) {
       state.timelinePosts = [...state.timelinePosts, ...action.payload];
     },
+
     incrementPage(state) {
       state.pageNo += 1;
       console.log(state.pageNo);

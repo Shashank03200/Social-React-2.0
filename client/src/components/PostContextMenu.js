@@ -22,8 +22,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { postDeleteActionHandler } from "../store/post-actions";
 import { loadTimelinePosts } from "../store/feed-actions";
 
-export default function PostContextMenu({ postId, deletionPossible }) {
-  const token = useSelector((state) => state.user.token);
+export default function PostContextMenu({ postId, postDeletePossible }) {
+  const accessToken = useSelector((state) => state.user.accessToken);
   const dispatch = useDispatch();
 
   // Alert UI States
@@ -32,8 +32,8 @@ export default function PostContextMenu({ postId, deletionPossible }) {
   const cancelRef = React.useRef();
 
   const postDeleteHandler = () => {
-    dispatch(postDeleteActionHandler(token, postId)).then(() => {
-      dispatch(loadTimelinePosts(token));
+    dispatch(postDeleteActionHandler(accessToken, postId)).then(() => {
+      dispatch(loadTimelinePosts(accessToken));
     });
   };
 
@@ -78,7 +78,7 @@ export default function PostContextMenu({ postId, deletionPossible }) {
         </MenuButton>
         <MenuList>
           {/* MenuItems are not rendered unless Menu is open */}
-          {deletionPossible && (
+          {postDeletePossible && (
             <MenuItem onClick={() => setIsOpen(true)}>Delete Post</MenuItem>
           )}
           <MenuItem>Open Post</MenuItem>

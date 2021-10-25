@@ -1,25 +1,16 @@
-import { useInterval } from "@chakra-ui/hooks";
 import axios from "axios";
+import routeInstance from "../routes.instance";
 
-import { Redirect } from "react-router-dom";
-import { loadTimelinePosts } from "./feed-actions";
 import { feedSliceActions } from "./feedSlice";
 import { UISliceActions } from "./UISlice";
 
 export const loadImageFromDisk =
-  (token, formData, setImageSrc) => async (dispatch) => {
+  (accessToken, formData, setImageSrc) => async (dispatch) => {
     try {
-      axios
+      routeInstance
         .post("api/posts/newpost", formData, {
           headers: {
-            Authorization: token,
-          },
-          onUploadProgress: (progressEvent) => {
-            console.log(
-              "Upload Progress: ",
-              Math.random(progressEvent.loaded / progressEvent.total) * 100 +
-                "%"
-            );
+            Authorization: "Bearer " + accessToken,
           },
         })
         .then((response) => {
@@ -38,17 +29,16 @@ export const loadImageFromDisk =
     }
   };
 
-export const createNewPost = (token, formData, page) => async (dispatch) => {
+export const createNewPost = (accessToken, formData) => async (dispatch) => {
   try {
-    const response = await fetch("/api/posts/newpost", {
-      method: "POST",
+    const response = await routeInstance.post("api/posts/newpost", formData, {
       headers: {
-        Authorization: token,
+        Authorization: "Bearer " + accessToken,
       },
-      body: formData,
     });
 
-    const data = await response.json();
+    const data = await response.data;
+    console.log("New Post Data: ", data);
     console.log(data);
     if (response.status === 200) {
       dispatch(feedSliceActions.addNewPost(data));
@@ -58,14 +48,15 @@ export const createNewPost = (token, formData, page) => async (dispatch) => {
   }
 };
 
-export const checkLikeStatus = async (token, postId) => {
+export const checkLikeStatus = async (accessToken, postId) => {
   try {
-    const response = await axios(`/api/posts/${postId}/likestatus`, {
-      headers: { Authorization: token },
+    console.log("Checking like status: ", postId);
+    const response = await routeInstance(`/api/posts/${postId}/likestatus`, {
+      headers: { Authorization: "Bearer " + accessToken },
     });
 
     const data = await response.data;
-
+    console.log("Checking like status: data :", data);
     if (data.likeState === true) {
       return true;
     }
@@ -75,17 +66,18 @@ export const checkLikeStatus = async (token, postId) => {
 };
 
 export const likeDislikePostHandler =
-  (token, postId, setIsLiked) => async (dispatch) => {
+  (accessToken, postId, setIsLiked) => async (dispatch) => {
     try {
-      const response = await fetch(`api/posts/${postId}/like`, {
+      const response = await routeInstance({
+        url: `api/posts/${postId}/like`,
         method: "POST",
         headers: {
-          Authorization: token,
+          Authorization: "Bearer " + accessToken,
         },
       });
 
       console.log(response);
-      const data = await response.json();
+      const data = await response.data;
 
       console.log(data);
       if (data.currentState === "liked") {
@@ -98,15 +90,15 @@ export const likeDislikePostHandler =
     }
   };
 
-export const postDeleteActionHandler = (token, postId) => {
+export const postDeleteActionHandler = (accessToken, postId) => {
   return async (dispatch) => {
-    console.log(token);
+    console.log(accessToken);
     try {
-      const response = await axios({
+      const response = await routeInstance({
         method: "delete",
         url: `api/posts/${postId}`,
         headers: {
-          Authorization: token,
+          Authorization: "Bearer " + accessToken,
         },
       });
 
@@ -116,14 +108,14 @@ export const postDeleteActionHandler = (token, postId) => {
   };
 };
 
-export const commentDeleteActionHandler = (token, commentId, postId) => {
+export const commentDeleteActionHandler = (accessToken, commentId, postId) => {
   return async (dispatch) => {
     console.log(commentId, postId);
-    const response = await axios({
+    const response = await routeInstance({
       method: "delete",
       url: `api/comments/${commentId}`,
       headers: {
-        Authorization: token,
+        Authorization: "Bearer " + accessToken,
       },
       data: {
         postId,

@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { loadUserDataUsingToken } from "../store/feed-actions";
 
 const FeedPage = () => {
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const userData = useSelector((state) => state.feed);
 
   const [tokenLoading, setIsTokenLoading] = useState(true);
@@ -19,11 +19,11 @@ const FeedPage = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (token) {
+    if (accessToken) {
       setIsTokenLoading(false);
-      dispatch(loadUserDataUsingToken(token));
+      dispatch(loadUserDataUsingToken(accessToken));
     }
-  }, [token]);
+  }, [accessToken]);
 
   useEffect(() => {
     if (userData.userId) {

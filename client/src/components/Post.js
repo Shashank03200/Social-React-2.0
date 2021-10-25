@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { LazyLoadComponent } from "react-lazy-load-image-component";
 
-import { loadUserInfoOfPost } from "../store/feed-actions";
 import { checkLikeStatus, likeDislikePostHandler } from "../store/post-actions";
 import PostFooter from "./PostFooter";
 import Comments from "./Comments";
@@ -14,40 +13,34 @@ import PostSkeleton from "./PostSkeleton";
 
 const Post = ({ postData }) => {
   console.log(postData);
-  const { _id: postId, deletePossible } = postData;
+  const { _id: postId, postDeletePossible } = postData;
   const dispatch = useDispatch();
 
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   console.log(postData._id);
-  const [userProfileSrc, setUserProfileSrc] = useState(undefined);
-  const [username, setUsername] = useState(undefined);
+
   const [isLiked, setIsLiked] = useState(undefined);
   const [commentsVisibility, setCommentsVisibility] = useState(false);
 
   const [newCommentData, setNewCommentData] = useState(undefined);
   const [isTouched, setIsTouched] = useState(false);
-  console.log("Post id", postData.postId);
+
+  const { _id: userId, username } = postData.userId;
+  const userProfileSrc = postData.userId.profileImage;
 
   useEffect(() => {
     if (postId) {
-      checkLikeStatus(token, postId).then((response) => {
+      checkLikeStatus(accessToken, postId).then((response) => {
         console.log("Like Response", response);
         setIsLiked(response);
       });
     }
   }, []);
 
-  useEffect(() => {
-    if (postId) {
-      dispatch(
-        loadUserInfoOfPost(postData.userId, setUserProfileSrc, setUsername)
-      );
-    }
-  }, [postId]);
   console.log(postId);
   const postLikeActivityHandler = () => {
     setIsTouched(true);
-    dispatch(likeDislikePostHandler(token, postId, setIsLiked));
+    dispatch(likeDislikePostHandler(accessToken, postId, setIsLiked));
   };
 
   const commentsVisibilityHandler = () => {
@@ -78,7 +71,7 @@ const Post = ({ postData }) => {
               username={username}
               userProfileSrc={userProfileSrc}
               postId={postId}
-              deletionPossible={deletePossible}
+              postDeletePossible={postDeletePossible}
             />
           )}
 

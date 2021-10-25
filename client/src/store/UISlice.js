@@ -3,21 +3,23 @@ import { createSlice } from "@reduxjs/toolkit";
 const UISlice = createSlice({
   name: "UISlice",
   initialState: {
-    UIError: {
+    toastData: {
+      isActive: false,
+      title: undefined,
       status: undefined,
-      type: undefined,
-      message: undefined,
     },
   },
   reducers: {
-    setError(state, action) {
-      state.UIError.status = action.payload.error;
-      state.UIError.type = action.payload.type;
-      state.UIError.message = action.payload.msg;
+    setToastData(state, action) {
+      console.log(action.payload);
+      state.toastData.isActive = action.payload.isActive;
+      state.toastData.title = action.payload.title;
+      state.toastData.status = action.payload.status;
     },
-    dismissError(state) {
-      state.UIError.status = false;
-      state.UIError.message = undefined;
+    resetToastData(state, action) {
+      state.toastData.isActive = false;
+      state.toastData.title = undefined;
+      state.toastData.status = undefined;
     },
   },
 });

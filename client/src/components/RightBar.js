@@ -12,15 +12,17 @@ import SuggestedUserList from "./SuggestedUserList";
 
 const RightBar = ({ userData }) => {
   const { userId } = userData;
+  console.log("Right bAr", userId);
+  console.log("Userid: ", userId);
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const [suggestedUsers, setSuggestedUsers] = useState(undefined);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (userId) {
-      dispatch(loadSuggestedUsers(userId, token, setSuggestedUsers));
+      dispatch(loadSuggestedUsers(userId, accessToken, setSuggestedUsers));
     }
   }, [userId]);
 

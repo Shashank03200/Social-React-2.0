@@ -10,12 +10,10 @@ import { feedSliceActions } from "../store/feedSlice";
 import PostSkeleton from "./PostSkeleton";
 
 const Feed = () => {
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const dispatch = useDispatch();
 
   const timelinePosts = useSelector((state) => state.feed.timelinePosts);
-
-  console.log("Timeline", timelinePosts);
 
   const feedData = useSelector((state) => state.feed);
   console.log("Feed Data: ", feedData);
@@ -25,19 +23,19 @@ const Feed = () => {
 
   console.log("Page no", page);
   useEffect(() => {
-    if (token) {
-      dispatch(loadTimelinePosts(token, page));
+    if (accessToken) {
+      dispatch(loadTimelinePosts(accessToken, page));
     }
-  }, [token, dispatch]);
+  }, [accessToken, dispatch]);
 
   useEffect(() => {
     if (page > 1) {
-      dispatch(loadTimelinePosts(token, page));
+      dispatch(loadTimelinePosts(accessToken, page));
     }
-  }, [page, token, dispatch]);
+  }, [page, accessToken, dispatch]);
 
   const fetchPostsHandler = () => {
-    if (token) {
+    if (accessToken) {
       dispatch(feedSliceActions.incrementPage());
     }
   };

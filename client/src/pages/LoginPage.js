@@ -12,29 +12,13 @@ import { UISliceActions } from "../store/UISlice";
 import "./LoginPage.css";
 
 const LoginPage = () => {
-  const toast = useToast();
   const dispatch = useDispatch();
-  const error = useSelector((state) => state.ui.UIError);
-
-  useEffect(() => {
-    if (error.status) {
-      toast({
-        title: error.message,
-        position: "top-right",
-        duration: 3000,
-      });
-    }
-
-    return () => {
-      dispatch(UISliceActions.dismissError());
-    };
-  }, [error.status]);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
+  const refreshToken = useSelector((state) => state.user.refreshToken);
 
-  if (token) {
+  if (accessToken && refreshToken) {
     return <Redirect to="/"></Redirect>;
   }
 

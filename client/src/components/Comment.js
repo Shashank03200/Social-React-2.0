@@ -7,19 +7,19 @@ import { commentDeleteActionHandler } from "../store/post-actions";
 import React from "react";
 
 function Comment(props) {
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
   const dispatch = useDispatch();
 
   const {
-    profileImage,
+    profileImage: userProfileImage,
     username,
-    commentText,
-    isRemovable,
-    _id: commentId,
-  } = props.commentData;
-  console.log("Hehe ", commentId);
+    _id: userId,
+  } = props.commentData.userId;
+
+  const { _id: commentId, commentText, isRemovable } = props.commentData;
+
   const commentDeleteHandler = () => {
-    dispatch(commentDeleteActionHandler(token, commentId, props.postId));
+    dispatch(commentDeleteActionHandler(accessToken, commentId, props.postId));
     props.onDelete();
   };
 
@@ -36,7 +36,7 @@ function Comment(props) {
         <Avatar
           size="xs"
           name={`${username}`}
-          src={`${process.env.PUBLIC_URL}/assets/uploads/users/${profileImage}`}
+          src={`${process.env.PUBLIC_URL}/assets/uploads/users/${userProfileImage}`}
           mr="4px"
         />
       </Box>

@@ -13,29 +13,14 @@ import { useEffect } from "react";
 import { UISliceActions } from "../store/UISlice";
 
 const RegisterPage = () => {
-  const toast = useToast();
   const dispatch = useDispatch();
-  const error = useSelector((state) => state.ui.UIError);
-
-  useEffect(() => {
-    if (error.status) {
-      toast({
-        title: error.message,
-        position: "top-right",
-        duration: 3000,
-      });
-    }
-    return () => {
-      dispatch(UISliceActions.dismissError());
-    };
-  }, [error.status]);
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const token = useSelector((state) => state.user.token);
+  const accessToken = useSelector((state) => state.user.accessToken);
 
-  if (token) {
+  if (accessToken) {
     return <Redirect to="/"></Redirect>;
   }
   const formSubmitHandler = (event) => {
