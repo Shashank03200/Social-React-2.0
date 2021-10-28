@@ -25,6 +25,8 @@ import { loadTimelinePosts } from "../store/feed-actions";
 function NewPostCreator(props) {
   const dispatch = useDispatch();
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("NewPostCreator.js", accessToken);
+
   const userId = useSelector((state) => state.feed.userId);
   const page = useSelector((state) => state.feed.pageNo);
 

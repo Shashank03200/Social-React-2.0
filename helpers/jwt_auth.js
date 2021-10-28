@@ -20,7 +20,7 @@ module.exports = {
             createError.InternalServerError("Bhaut eerror h bhaii")
           );
         } else {
-          resolve(accessToken);
+          return resolve(accessToken);
         }
       });
     });
@@ -60,27 +60,31 @@ module.exports = {
         audience: userId,
       };
 
-      JWT.sign(payload, secret, options, (err, accessToken) => {
-        if (err) {
-          console.log(err);
-          reject(createError.InternalServerError());
-        } else {
-          client.SET(
-            userId,
-            accessToken,
-            "EX",
-            365 * 24 * 60 * 60,
-            (err, reply) => {
-              if (err) {
-                console.log(err);
-                reject(createError.InternalServerError());
-                return;
+      try {
+        JWT.sign(payload, secret, options, (err, accessToken) => {
+          if (err) {
+            console.log(err);
+            reject(createError.InternalServerError());
+          } else {
+            client.SET(
+              userId,
+              accessToken,
+              "EX",
+              365 * 24 * 60 * 60,
+              (err, reply) => {
+                if (err) {
+                  console.log(err);
+                  reject(createError.InternalServerError());
+                  return;
+                }
+                resolve(accessToken);
               }
-              resolve(accessToken);
-            }
-          );
-        }
-      });
+            );
+          }
+        });
+      } catch (error) {
+        console.log(error.message);
+      }
     });
   },
 

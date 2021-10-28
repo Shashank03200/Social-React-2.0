@@ -8,6 +8,7 @@ import React from "react";
 
 function Comment(props) {
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("Comment.js", accessToken);
   const dispatch = useDispatch();
 
   const {

@@ -24,6 +24,8 @@ import { loadTimelinePosts } from "../store/feed-actions";
 
 export default function PostContextMenu({ postId, postDeletePossible }) {
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("PostContextMenu.js", accessToken);
+
   const dispatch = useDispatch();
 
   // Alert UI States

@@ -8,6 +8,8 @@ import axios from "axios";
 
 function Comments(props) {
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("Comments.js", accessToken);
+
   console.log("TOken", accessToken);
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState();

@@ -6,6 +6,8 @@ import { useSelector } from "react-redux";
 
 function CommentInput(props) {
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("CommentInput.js", accessToken);
+
   const { userName: username, userProfileImage: profileImage } = useSelector(
     (state) => state.feed
   );

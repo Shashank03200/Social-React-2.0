@@ -12,19 +12,19 @@ import { userSliceActions } from "./store/userInfoSlice";
 import { UISliceActions } from "./store/UISlice";
 
 function App() {
-  const { accessToken, refreshToken, isAccessTokenValid } = useSelector(
-    (state) => state.user
-  );
+  const { accessToken, refreshToken } = useSelector((state) => state.user);
   const toast = useToast();
   const toastData = useSelector((state) => state.UISlice.toastData);
-  const dispatch = useDispatch();
+
+  console.log(accessToken, refreshToken);
+
   const isActive = toastData.isActive;
-  const [isUserValid, setIsUserValid] = useState(true);
+  const [isUserValid, setIsUserValid] = useState(false);
   useEffect(() => {
-    if (!accessToken || !refreshToken) {
-      setIsUserValid(false);
+    if (accessToken && refreshToken) {
+      setIsUserValid(true);
     }
-  }, []);
+  }, [accessToken, refreshToken]);
 
   // useEffect(async () => {
   //   // checkAccessToken().then(() => {
@@ -75,14 +75,14 @@ function App() {
   return (
     <div className="App">
       <Switch>
+        <Route path="/" exact>
+          {isUserValid ? <FeedPage /> : <LoginPage />}
+        </Route>
         <Route path="/register">
           <RegisterPage />
         </Route>
         <Route path="/login">
           <LoginPage />
-        </Route>
-        <Route path="/" exact>
-          {isUserValid ? <FeedPage /> : <Redirect to="/login" />}
         </Route>
       </Switch>
     </div>

@@ -17,6 +17,8 @@ const Post = ({ postData }) => {
   const dispatch = useDispatch();
 
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("Post.js", accessToken);
+
   console.log(postData._id);
 
   const [isLiked, setIsLiked] = useState(undefined);

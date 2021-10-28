@@ -25,7 +25,7 @@ export const loadUserDataUsingToken = (accessToken) => {
         dispatch(feedSliceActions.setUserData({ ...data }));
       }
     } catch (err) {
-      dispatch(userSliceActions.setAccessTokenInvalid());
+      dispatch(userSliceActions.removeToken());
     }
   };
 };

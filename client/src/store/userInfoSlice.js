@@ -3,9 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const userSlice = createSlice({
   name: "userSlice",
   initialState: {
-    accessToken: localStorage.getItem("accessToken"),
-    refreshToken: localStorage.getItem("refreshToken"),
-    isAccessTokenValid: undefined,
+    accessToken: localStorage.getItem("accessToken") || undefined,
+    refreshToken: localStorage.getItem("refreshToken") || undefined,
   },
   reducers: {
     setToken(state, action) {
@@ -13,17 +12,12 @@ const userSlice = createSlice({
       state.refreshToken = action.payload.refreshToken;
       localStorage.setItem("accessToken", state.accessToken);
       localStorage.setItem("refreshToken", state.refreshToken);
-      state.isUserValid = true;
     },
     removeToken(state) {
       state.accessToken = undefined;
       state.refreshToken = undefined;
-      state.isUserValid = false;
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-    },
-    setAccessTokenInvalid(state) {
-      state.isAccessTokenValid = false;
     },
   },
 });

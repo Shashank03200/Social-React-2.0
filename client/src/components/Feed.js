@@ -11,6 +11,8 @@ import PostSkeleton from "./PostSkeleton";
 
 const Feed = () => {
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("Feed.js", accessToken);
+
   const dispatch = useDispatch();
 
   const timelinePosts = useSelector((state) => state.feed.timelinePosts);

@@ -1,6 +1,7 @@
 import { userSliceActions } from "./userInfoSlice";
 import { UISliceActions } from "./UISlice";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
 export const registerUser = (userDetails) => {
   return async (dispatch) => {
@@ -80,6 +81,7 @@ export const loginUser = (userDetails) => {
             status: "success",
           })
         );
+        <Redirect to="/feed"></Redirect>;
       }
     } catch (err) {
       console.log(err);
@@ -92,8 +94,8 @@ export const setTokens = (accessToken, refreshToken) => (dispatch) => {
   try {
     dispatch(
       userSliceActions.setToken({
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       })
     );
   } catch (error) {

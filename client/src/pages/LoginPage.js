@@ -18,10 +18,6 @@ const LoginPage = () => {
   const accessToken = useSelector((state) => state.user.accessToken);
   const refreshToken = useSelector((state) => state.user.refreshToken);
 
-  if (accessToken && refreshToken) {
-    return <Redirect to="/"></Redirect>;
-  }
-
   const loginFormHandler = (e) => {
     e.preventDefault();
     dispatch(loginUser({ email, password }));

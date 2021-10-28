@@ -6,6 +6,7 @@ import axios from "axios";
 
 function LatestComments(props) {
   const accessToken = useSelector((state) => state.user.accessToken);
+  console.log("LatestComments.js", accessToken);
 
   const [latestComments, setLatestComments] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);

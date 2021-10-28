@@ -10,10 +10,6 @@ import store from "./store/index";
 
 import App from "./App";
 
-const instance = axios.create({
-  baseURL: "http://localhost:5000",
-});
-
 ReactDOM.render(
   <Provider store={store}>
     <Router>
