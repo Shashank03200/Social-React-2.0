@@ -52,3 +52,9 @@
 .NewUserMessageDiv a {
   color: blue;
 }
+
+@media screen and (max-width: 1200px) {
+  .LoginLeft{
+    display:none;
+  }
+}

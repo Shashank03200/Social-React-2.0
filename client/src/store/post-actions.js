@@ -1,17 +1,15 @@
-import axios from "axios";
 import routeInstance from "../routes.instance";
 
 import { feedSliceActions } from "./feedSlice";
 import { UISliceActions } from "./UISlice";
 
 export const loadImageFromDisk =
-  (accessToken, formData, setImageSrc) => async (dispatch) => {
+  (formData, setImageSrc) => async (dispatch) => {
     try {
+      const accessToken = localStorage.getItem("accessToken");
       routeInstance
         .post("api/posts/newpost", formData, {
-          headers: {
-            Authorization: "Bearer " + accessToken,
-          },
+          headers: {},
         })
         .then((response) => {
           if (response.status === 200) {
@@ -29,12 +27,11 @@ export const loadImageFromDisk =
     }
   };
 
-export const createNewPost = (accessToken, formData) => async (dispatch) => {
+export const createNewPost = (formData) => async (dispatch) => {
   try {
+    const accessToken = localStorage.getItem("accessToken");
     const response = await routeInstance.post("api/posts/newpost", formData, {
-      headers: {
-        Authorization: "Bearer " + accessToken,
-      },
+      headers: {},
     });
 
     const data = await response.data;
@@ -48,8 +45,9 @@ export const createNewPost = (accessToken, formData) => async (dispatch) => {
   }
 };
 
-export const checkLikeStatus = async (accessToken, postId) => {
+export const checkLikeStatus = async (postId) => {
   try {
+    const accessToken = localStorage.getItem("accessToken");
     console.log("Checking like status: ", postId);
     const response = await routeInstance(`/api/posts/${postId}/likestatus`, {
       headers: { Authorization: "Bearer " + accessToken },
@@ -66,14 +64,13 @@ export const checkLikeStatus = async (accessToken, postId) => {
 };
 
 export const likeDislikePostHandler =
-  (accessToken, postId, setIsLiked) => async (dispatch) => {
+  (postId, setIsLiked) => async (dispatch) => {
     try {
+      const accessToken = localStorage.getItem("accessToken");
       const response = await routeInstance({
         url: `api/posts/${postId}/like`,
         method: "POST",
-        headers: {
-          Authorization: "Bearer " + accessToken,
-        },
+        headers: {},
       });
 
       console.log(response);
@@ -90,16 +87,15 @@ export const likeDislikePostHandler =
     }
   };
 
-export const postDeleteActionHandler = (accessToken, postId) => {
+export const postDeleteActionHandler = (postId) => {
   return async (dispatch) => {
+    const accessToken = localStorage.getItem("accessToken");
     console.log(accessToken);
     try {
       const response = await routeInstance({
         method: "delete",
         url: `api/posts/${postId}`,
-        headers: {
-          Authorization: "Bearer " + accessToken,
-        },
+        headers: {},
       });
 
       const data = await response.data;
@@ -108,15 +104,14 @@ export const postDeleteActionHandler = (accessToken, postId) => {
   };
 };
 
-export const commentDeleteActionHandler = (accessToken, commentId, postId) => {
+export const commentDeleteActionHandler = (commentId, postId) => {
   return async (dispatch) => {
+    const accessToken = localStorage.getItem("accessToken");
     console.log(commentId, postId);
     const response = await routeInstance({
       method: "delete",
       url: `api/comments/${commentId}`,
-      headers: {
-        Authorization: "Bearer " + accessToken,
-      },
+      headers: {},
       data: {
         postId,
       },
@@ -126,9 +121,10 @@ export const commentDeleteActionHandler = (accessToken, commentId, postId) => {
       console.log(response);
     } else {
       dispatch(
-        UISliceActions.setError({
-          status: true,
-          message: "Cant update changes.",
+        UISliceActions.setToastData({
+          isActive: true,
+          title: "Can't update changes",
+          status: "error",
         })
       );
     }

@@ -8,7 +8,7 @@ module.exports = {
       const payload = {};
       const secret = process.env.ACCESS_TOKEN_SECRET;
       const options = {
-        expiresIn: "10s",
+        expiresIn: "1y",
         issuer: "instagram.com",
         audience: userId,
       };
@@ -20,13 +20,14 @@ module.exports = {
             createError.InternalServerError("Bhaut eerror h bhaii")
           );
         } else {
-          return resolve(accessToken);
+          resolve(accessToken);
         }
       });
     });
   },
 
   verifyAccessToken: (req, res, next) => {
+
     if (!req.headers["authorization"]) return next(createError.Unauthorized());
 
     const authHeader = req.headers["authorization"];
@@ -36,11 +37,13 @@ module.exports = {
     JWT.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
       try {
         if (err) {
+          console.log('TOken Invallid');
           const message =
             err.name === "JsonWebTokenError" ? "Unauthorized" : err.message;
           err.message = message;
           next(createError.Unauthorized(err));
         }
+        
         req.userId = payload.aud;
       } catch (error) {
         next(error.message);
@@ -60,31 +63,28 @@ module.exports = {
         audience: userId,
       };
 
-      try {
-        JWT.sign(payload, secret, options, (err, accessToken) => {
-          if (err) {
-            console.log(err);
-            reject(createError.InternalServerError());
-          } else {
-            client.SET(
-              userId,
-              accessToken,
-              "EX",
-              365 * 24 * 60 * 60,
-              (err, reply) => {
-                if (err) {
-                  console.log(err);
-                  reject(createError.InternalServerError());
-                  return;
-                }
-                resolve(accessToken);
+      JWT.sign(payload, secret, options, (err, refreshToken) => {
+        if (err) {
+          console.log(err);
+          reject(createError.InternalServerError());
+        } else {
+          client.set(
+            userId,
+            refreshToken,
+            "EX",
+            365 * 24 * 60 * 60,
+            (err, reply) => {
+              if (err) {
+                console.log(err);
+                reject(createError.InternalServerError());
+                return;
               }
-            );
-          }
-        });
-      } catch (error) {
-        console.log(error.message);
-      }
+              console.log(reply);
+              resolve(refreshToken);
+            }
+          );
+        }
+      });
     });
   },
 
@@ -100,15 +100,15 @@ module.exports = {
           console.log(payload);
           const userId = payload.aud;
           console.log(userId);
-          // client.get(userId, (err, result) => {
-          //   if (err) {
-          //     console.log(err.message);
-          //     reject(createError.InternalServerError());
-          //     return;
-          //   }
-          //   if (refreshToken === result) return resolve(userId);
-          //   else reject(createError.Unauthorized());
-          // });
+          client.get(userId, (err, result) => {
+            if (err) {
+              console.log(err.message);
+              reject(createError.InternalServerError());
+              return;
+            }
+            if (refreshToken === result) return resolve(userId);
+            else reject(createError.Unauthorized());
+          });
           return resolve(userId);
         }
       );

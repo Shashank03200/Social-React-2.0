@@ -1,7 +1,4 @@
 const router = require("express").Router();
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const Joi = require("joi");
 const createError = require("http-errors");
 
 const { registerSchema, loginSchema } = require("../helpers/validation_schema");
@@ -18,7 +15,6 @@ const {
 router.post("/register", async (req, res, next) => {
   try {
     const result = await registerSchema.validateAsync(req.body);
-
     const foundUser = await User.findOne({ email: result.email });
 
     if (foundUser) {
@@ -55,7 +51,7 @@ router.post("/login", async (req, res, next) => {
     if (!user) {
       throw createError.NotFound("Your account is not registered");
     }
-    console.log(user);
+
     const isMatch = await user.isValidPassword(result.password);
 
     if (!isMatch) throw createError.Unauthorized("Invalid email or password");
@@ -68,7 +64,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/refreshToken", async (req, res, next) => {
+router.post("/refresh-token", async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
@@ -93,7 +89,7 @@ router.post("/logout", async (req, res, next) => {
 
     const userId = await verifyRefreshToken(refreshToken);
 
-    client.DEL(userId, (err, val) => {
+    client.del(userId, (err, val) => {
       if (err) {
         console.log(err.message);
         throw createError.InternalServerError();

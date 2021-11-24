@@ -1,45 +1,55 @@
 import { UISliceActions } from "./UISlice";
 import { feedSliceActions } from "./feedSlice";
-import axios from "axios";
-import { userSliceActions } from "./userInfoSlice";
-import routeInstance from "../routes.instance";
 
-export const loadUserDataUsingToken = (accessToken) => {
+import routeInstance from "../routes.instance";
+import authSlice from "./authSlice";
+
+export const loadUserDataUsingToken = () => {
   return async (dispatch) => {
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      console.log("Access Token: ", accessToken);
       const response = await routeInstance({
         method: "get",
         url: "/api/auth/user",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessToken,
         },
       });
-      console.log(response);
-      if (response.status !== 200) {
-        dispatch(userSliceActions.removeToken());
-        throw new Error("Please login again");
-      } else {
-        const data = await response.data;
-        console.log("Userdata " + data);
-        dispatch(feedSliceActions.setUserData({ ...data }));
+      if (response) {
+        console.log("Response: ", response);
+        console.log("Response Status: ", response.status);
+
+        if (response.status !== 200) {
+          throw Error(response.error);
+        } else {
+          const data = await response.data;
+          console.log("Userdata " + data);
+          dispatch(feedSliceActions.setUserData({ ...data }));
+        }
       }
-    } catch (err) {
-      dispatch(userSliceActions.removeToken());
+    } catch (error) {
+      dispatch(
+        UISliceActions.setToastData({
+          isActive: true,
+          title: error.message,
+          status: "warning",
+        })
+      );
     }
   };
 };
 
-export const loadTimelinePosts = (accessToken, page) => {
+export const loadTimelinePosts = (page) => {
   console.log(page);
   return async (dispatch) => {
     try {
+      const accessToken = localStorage.getItem("accessToken");
       const response = await routeInstance({
         url: `api/posts/timeline?page=${page}&count=2`,
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessToken,
         },
       });
 
@@ -52,26 +62,31 @@ export const loadTimelinePosts = (accessToken, page) => {
       } else {
         throw new Error("Error in loading timeline");
       }
-    } catch (err) {
+    } catch (error) {
       dispatch(feedSliceActions.setMorePostsBoolean(false));
+      dispatch(
+        UISliceActions.setToastData({
+          isActive: true,
+          title: error.message,
+          status: "warning",
+        })
+      );
     }
   };
 };
 
-export const loadSuggestedUsers = (
-  userId,
-  accessToken,
-  setSuggestedUsersList
-) => {
+export const loadSuggestedUsers = (userId, setSuggestedUsersList) => {
   return async (dispatch) => {
     try {
+      const accessToken = localStorage.getItem("accessToken");
+      console.log("function: loadSuggestedUsers", accessToken);
       let currentUserFollowingList = [];
       const headers = { Authorization: "Bearer " + accessToken };
-      routeInstance.get("/api/auth/user", { headers }).then((response) => {
+      routeInstance.get("/api/auth/user").then((response) => {
         currentUserFollowingList = response.data.following;
       });
       console.log("Current User followings: ", currentUserFollowingList);
-      const response = await routeInstance("api/users/all", { headers });
+      const response = await routeInstance("api/users/all");
       const allUsers = await response.data;
 
       const suggestedUsers = allUsers.filter(
@@ -86,37 +101,28 @@ export const loadSuggestedUsers = (
   };
 };
 
-// export const loadUserInfoOfPost = (
-//   postUserId,
-//   setUserProfileSrc,
-//   setUsername
-// ) => {
-//   return async (dispatch) => {
-//     try {
-//       const response = await axios.get(`api/users/${postUserId}`);
+export const followUser = (userId, isFollowing) => async (dispatch) => {
+  try {
+    const accessToken = localStorage.getItem("accessToken");
+    const response = await routeInstance({
+      url: `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-//       const data = await response.data;
-
-//       setUserProfileSrc(data.profileImage);
-//       setUsername(data.username);
-//     } catch (error) {}
-//   };
-// };
-
-export const followUser =
-  (accessToken, userId, isFollowing) => async (dispatch) => {
-    try {
-      const response = await routeInstance({
-        url: `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + accessToken,
-        },
-      });
-
-      const data = await response.data;
-    } catch (err) {
-      console.log(err);
+    if (response.status !== 200) {
+      throw new Error(response.error);
     }
-  };
+
+    const data = await response.data;
+  } catch (err) {
+    console.log(err);
+    UISliceActions.setToastData({
+      isActive: true,
+      title: err.message,
+      status: "warning",
+    });
+  }
+};

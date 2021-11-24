@@ -18,11 +18,9 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
-  if (accessToken) {
-    return <Redirect to="/"></Redirect>;
-  }
   const formSubmitHandler = (event) => {
     event.preventDefault();
     dispatch(registerUser({ email, username, password }));
@@ -42,7 +40,11 @@ const RegisterPage = () => {
           <div className="SiteLogo">
             <img src={InstaLogo} className="InstaLogo" />
           </div>
-
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <h2 className="RegisterDesc">
+              Sign up to see photos and videos from your friends.
+            </h2>
+          </div>
           <form
             method="post"
             className="RegisterForm"
@@ -94,7 +96,7 @@ const RegisterPage = () => {
             </Button>
           </form>
           <div className="RegisteredUserMessageDiv">
-            Already a user?&nbsp;&nbsp; <Link to="/login">Login</Link>
+            Already a user?&nbsp;&nbsp; <Link to="/login">Register</Link>
           </div>
         </div>
       </div>

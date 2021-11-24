@@ -3,18 +3,18 @@ import { setTokens } from "./store/auth-actions";
 
 const routeInstance = axios.create({});
 
-// routeInstance.interceptors.request.use(
-//   (config) => {
-//     const accessToken = useSelector((state) => state.user.accessToken);
-//     if (accessToken) {
-//       config.headers["Authorization"] = accessToken;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     Promise.reject(error);
-//   }
-// );
+routeInstance.interceptors.request.use(
+  (request) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      request.headers["Authorization"] = "Bearer " + accessToken;
+    }
+    return request;
+  },
+  (error) => {
+    Promise.reject(error);
+  }
+);
 
 routeInstance.interceptors.response.use(
   (response) => {
@@ -30,19 +30,20 @@ routeInstance.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       error.config &&
-      refreshToken
+      refreshToken &&
+      !originalRequest._retry
     ) {
       console.log("Response Intercepted");
-
+      originalRequest._retry = true;
       axios
         .post(`api/auth/refreshToken`, { refreshToken })
         .then((res) => res.data)
         .then((data) => {
-          console.log("Data after refresh: ", data);
+          error.config.headers["Authorization"] = "Bearer " + data.accessToken;
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
-
-          return axios(originalRequest);
+          console.log("New data after refresh : ", data);
+          return axios.request(error.config);
         })
         .catch((err) => {
           console.log(err);

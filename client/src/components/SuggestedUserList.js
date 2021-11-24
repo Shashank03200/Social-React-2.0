@@ -2,42 +2,39 @@ import { Spinner } from "@chakra-ui/spinner";
 import { useState, useEffect } from "react";
 import SuggestedUser from "./SuggestedUser";
 import { useSelector } from "react-redux";
-import axios from "axios";
+
 import routeInstance from "../routes.instance";
 
 function SuggestedUserList({ suggestedUsers }) {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const [accessToken, setAccessToken] = useState(
+    localStorage.getItem("accessToken")
+  );
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   const [isLoadingList, setIsLoadingList] = useState(true);
   const [currentUserFollowings, setCurrentUserFollowings] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
+      console.log("Suggested UserList.js ", accessToken);
       const response = await routeInstance({
         url: "/api/auth/user",
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessToken,
         },
       });
-      if (response.status !== 200) {
-        console.log(response);
-        throw new Error("Server Error");
-      }
-      const data = await response.data;
-
-      setCurrentUserFollowings(data.following);
-      setIsLoadingList(false);
+      console.log("Response [SuggestedUserList.js]: ", response);
+      setCurrentUserFollowings(response.data.following)
     };
     try {
-      if (accessToken) {
+      if (isLoggedIn) {
         fetchUserData();
       }
     } catch (error) {
       console.log(error);
     }
-  }, [accessToken]);
+  }, []);
 
   const suggestedUsersList =
     suggestedUsers &&

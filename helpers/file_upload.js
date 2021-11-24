@@ -4,14 +4,18 @@ const fs = require("fs");
 let sampleImages = [];
 
 const imageFilter = (req, file, cb) => {
-  if (
-    file.mimetype == "image/png" ||
-    file.mimetype == "image/jpeg" ||
-    file.mimetype == "image/jpg"
-  ) {
-    cb(null, true);
-  } else {
+  if(file.fileSize > 1000000){
     cb(null, false);
+  }else{
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpeg" ||
+      file.mimetype == "image/jpg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
   }
 };
 

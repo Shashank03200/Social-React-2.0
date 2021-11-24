@@ -10,14 +10,14 @@ import {
 } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { feedSliceActions } from "../store/feedSlice";
-import { userSliceActions } from "../store/userInfoSlice";
+import { authSliceActions } from "../store/authSlice";
 import { useDispatch } from "react-redux";
 
 function LogoutAlert(props) {
   const dispatch = useDispatch();
 
   const userLogoutHandler = () => {
-    dispatch(userSliceActions.removeToken());
+    dispatch(authSliceActions.removeUser());
     dispatch(feedSliceActions.resetUserData());
   };
   const { isOpen, onClose } = props;

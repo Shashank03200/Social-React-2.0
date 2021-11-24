@@ -1,11 +1,13 @@
 import { Box, Avatar, Input, Button } from "@chakra-ui/react";
-import axios from "axios";
+
 import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import routeInstance from "../routes.instance";
 
 function CommentInput(props) {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("CommentInput.js", accessToken);
 
   const { userName: username, userProfileImage: profileImage } = useSelector(
@@ -22,12 +24,11 @@ function CommentInput(props) {
 
   const commentPostHandler = async () => {
     try {
-      const response = await axios({
+      const response = await routeInstance({
         url: `/api/comments/${props.postId}/new`,
         method: "post",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + accessToken,
         },
         data: {
           commentText: text,

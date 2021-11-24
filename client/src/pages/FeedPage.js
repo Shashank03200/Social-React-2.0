@@ -11,19 +11,19 @@ import { useSelector, useDispatch } from "react-redux";
 import { loadUserDataUsingToken } from "../store/feed-actions";
 
 const FeedPage = () => {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const userData = useSelector((state) => state.feed);
-
-  const [tokenLoading, setIsTokenLoading] = useState(true);
+  console.log("userData : ", userData);
   const [userDataLoaded, setUserDataLoaded] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (accessToken) {
-      setIsTokenLoading(false);
-      dispatch(loadUserDataUsingToken(accessToken));
+    if (isLoggedIn) {
+      console.log("Is Logged In", isLoggedIn);
+
+      dispatch(loadUserDataUsingToken());
     }
-  }, [accessToken]);
+  }, []);
 
   useEffect(() => {
     if (userData.userId) {
@@ -33,23 +33,17 @@ const FeedPage = () => {
 
   return (
     <Fragment>
-      {tokenLoading ? (
-        <Spinner size="xl" />
-      ) : (
+      {userDataLoaded ? (
         <Fragment>
-          {userDataLoaded ? (
-            <Fragment>
-              <Navbar />
-              <Box d="flex">
-                <Sidebar />
-                <Feed userData={userData} />
-                <RightBar userData={userData} />
-              </Box>
-            </Fragment>
-          ) : (
-            <Skeleton />
-          )}
+          <Navbar />
+          <Box d="flex">
+            <Sidebar />
+            <Feed userData={userData} />
+            <RightBar userData={userData} />
+          </Box>
         </Fragment>
+      ) : (
+        <Skeleton />
       )}
     </Fragment>
   );

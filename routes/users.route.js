@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
-const auth = require("../middleware/auth");
 const User = require("../models/User");
 const createError = require("http-errors");
 

@@ -16,7 +16,8 @@ const Post = ({ postData }) => {
   const { _id: postId, postDeletePossible } = postData;
   const dispatch = useDispatch();
 
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("Post.js", accessToken);
 
   console.log(postData._id);
@@ -32,7 +33,7 @@ const Post = ({ postData }) => {
 
   useEffect(() => {
     if (postId) {
-      checkLikeStatus(accessToken, postId).then((response) => {
+      checkLikeStatus(postId).then((response) => {
         console.log("Like Response", response);
         setIsLiked(response);
       });
@@ -42,7 +43,7 @@ const Post = ({ postData }) => {
   console.log(postId);
   const postLikeActivityHandler = () => {
     setIsTouched(true);
-    dispatch(likeDislikePostHandler(accessToken, postId, setIsLiked));
+    dispatch(likeDislikePostHandler(postId, setIsLiked));
   };
 
   const commentsVisibilityHandler = () => {

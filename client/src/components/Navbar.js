@@ -9,11 +9,15 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 
+import { useSelector } from "react-redux";
 import { IoHomeSharp } from "react-icons/io5";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FiHeart } from "react-icons/fi";
 
 const Navbar = () => {
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
   return (
     <Box
       borderBottom="1px solid pink"

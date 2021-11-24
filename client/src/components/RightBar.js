@@ -15,14 +15,15 @@ const RightBar = ({ userData }) => {
   console.log("Right bAr", userId);
   console.log("Userid: ", userId);
   const dispatch = useDispatch();
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const [suggestedUsers, setSuggestedUsers] = useState(undefined);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (userId) {
-      dispatch(loadSuggestedUsers(userId, accessToken, setSuggestedUsers));
+      dispatch(loadSuggestedUsers(userId, setSuggestedUsers));
     }
   }, [userId]);
 

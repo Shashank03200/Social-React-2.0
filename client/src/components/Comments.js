@@ -4,13 +4,11 @@ import { Box, Center, Spinner } from "@chakra-ui/react";
 import routeInstance from "../routes.instance";
 import Comment from "./Comment";
 
-import axios from "axios";
-
 function Comments(props) {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("Comments.js", accessToken);
 
-  console.log("TOken", accessToken);
   const [comments, setComments] = useState([]);
   const [isLoading, setIsLoading] = useState();
   const [refetchComments, setRefetchComments] = useState(false);

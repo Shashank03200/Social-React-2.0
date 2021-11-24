@@ -1,7 +1,6 @@
-import { userSliceActions } from "./userInfoSlice";
+import { authSliceActions } from "./authSlice";
 import { UISliceActions } from "./UISlice";
 import axios from "axios";
-import { Redirect } from "react-router-dom";
 
 export const registerUser = (userDetails) => {
   return async (dispatch) => {
@@ -9,8 +8,9 @@ export const registerUser = (userDetails) => {
       const response = await axios({
         method: "post",
         url: "http://localhost:5000/api/auth/register",
-        data: userDetails,
+        data: JSON.stringify(userDetails),
       });
+      console.log(response);
       if (response.status !== 200) {
         const { error } = await response.data;
         console.log(error);
@@ -25,7 +25,7 @@ export const registerUser = (userDetails) => {
         const data = await response.data;
         console.log(data);
         dispatch(
-          userSliceActions.setToken({
+          authSliceActions.setUser({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
           })
@@ -40,7 +40,7 @@ export const registerUser = (userDetails) => {
       }
     } catch (err) {
       console.log(err);
-      localStorage.removeItem("accessToken");
+      authSliceActions.removeUser();
     }
   };
 };
@@ -56,7 +56,17 @@ export const loginUser = (userDetails) => {
         },
         data: JSON.stringify(userDetails),
       });
-      if (response.status !== 200) {
+      if(response.status === 404){
+        const error = await response.data.error;
+        dispatch(
+          UISliceActions.setToastData({
+            isActive: true,
+            title: "Account not registered",
+            status: "error",
+          })
+        );
+      }
+      else if (response.status !== 200) {
         const error = await response.data.error;
         dispatch(
           UISliceActions.setToastData({
@@ -69,7 +79,7 @@ export const loginUser = (userDetails) => {
         const data = await response.data;
         console.log(data);
         dispatch(
-          userSliceActions.setToken({
+          authSliceActions.setUser({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
           })
@@ -81,24 +91,10 @@ export const loginUser = (userDetails) => {
             status: "success",
           })
         );
-        <Redirect to="/feed"></Redirect>;
       }
     } catch (err) {
       console.log(err);
-      localStorage.removeItem("accessToken");
+      authSliceActions.removeUser();
     }
   };
-};
-
-export const setTokens = (accessToken, refreshToken) => (dispatch) => {
-  try {
-    dispatch(
-      userSliceActions.setToken({
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      })
-    );
-  } catch (error) {
-    console.log(error);
-  }
 };

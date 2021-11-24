@@ -10,7 +10,8 @@ import { feedSliceActions } from "../store/feedSlice";
 import PostSkeleton from "./PostSkeleton";
 
 const Feed = () => {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("Feed.js", accessToken);
 
   const dispatch = useDispatch();
@@ -25,19 +26,19 @@ const Feed = () => {
 
   console.log("Page no", page);
   useEffect(() => {
-    if (accessToken) {
-      dispatch(loadTimelinePosts(accessToken, page));
+    if (isLoggedIn) {
+      dispatch(loadTimelinePosts(page));
     }
-  }, [accessToken, dispatch]);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (page > 1) {
-      dispatch(loadTimelinePosts(accessToken, page));
+      dispatch(loadTimelinePosts(page));
     }
-  }, [page, accessToken, dispatch]);
+  }, [page, isLoggedIn, dispatch]);
 
   const fetchPostsHandler = () => {
-    if (accessToken) {
+    if (isLoggedIn) {
       dispatch(feedSliceActions.incrementPage());
     }
   };

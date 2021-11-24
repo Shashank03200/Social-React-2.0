@@ -6,10 +6,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { followUser } from "../store/feed-actions";
 
 const SuggestedUser = (props) => {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+
   const dispatch = useDispatch();
   const [isFollowing, setIsFollowing] = useState(false);
-
+  console.log('Followings : ', props.currentuserFollowings);
   useEffect(() => {
     setIsFollowing(props.currentuserFollowings.includes(props.userId));
   }, []);

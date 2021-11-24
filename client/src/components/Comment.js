@@ -7,7 +7,8 @@ import { commentDeleteActionHandler } from "../store/post-actions";
 import React from "react";
 
 function Comment(props) {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("Comment.js", accessToken);
   const dispatch = useDispatch();
 
@@ -20,7 +21,7 @@ function Comment(props) {
   const { _id: commentId, commentText, isRemovable } = props.commentData;
 
   const commentDeleteHandler = () => {
-    dispatch(commentDeleteActionHandler(accessToken, commentId, props.postId));
+    dispatch(commentDeleteActionHandler(commentId, props.postId));
     props.onDelete();
   };
 

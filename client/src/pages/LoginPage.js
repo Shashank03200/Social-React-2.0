@@ -12,9 +12,11 @@ import { UISliceActions } from "../store/UISlice";
 import "./LoginPage.css";
 
 const LoginPage = () => {
+
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
   const accessToken = useSelector((state) => state.user.accessToken);
   const refreshToken = useSelector((state) => state.user.refreshToken);
 
@@ -68,7 +70,7 @@ const LoginPage = () => {
             </Button>
           </form>
           <div className="NewUserMessageDiv">
-            Not a user?&nbsp;&nbsp; <Link to="/register">Sign Up</Link>
+            Not a user?&nbsp;&nbsp; <Link to="/register">Register</Link>
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@
 }
 
 .RegisterForm {
-  margin: 60px auto;
+  margin: 30px auto;
   width: 70%;
 }
 
@@ -50,4 +50,17 @@
 }
 .RegisteredUserMessageDiv a {
   color: blue;
+}
+
+.RegisterDesc{
+  font-size: 18px;
+  text-align:center;
+  color: rgba(var(--f52,142,142,142),1);
+  width: 60%;
+}
+
+@media screen and (max-width: 1200px) {
+  .RegisterLeft{
+    display:none;
+  }
 }

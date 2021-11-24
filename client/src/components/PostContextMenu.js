@@ -23,7 +23,8 @@ import { postDeleteActionHandler } from "../store/post-actions";
 import { loadTimelinePosts } from "../store/feed-actions";
 
 export default function PostContextMenu({ postId, postDeletePossible }) {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("PostContextMenu.js", accessToken);
 
   const dispatch = useDispatch();
@@ -34,8 +35,8 @@ export default function PostContextMenu({ postId, postDeletePossible }) {
   const cancelRef = React.useRef();
 
   const postDeleteHandler = () => {
-    dispatch(postDeleteActionHandler(accessToken, postId)).then(() => {
-      dispatch(loadTimelinePosts(accessToken));
+    dispatch(postDeleteActionHandler(postId)).then(() => {
+      dispatch(loadTimelinePosts());
     });
   };
 

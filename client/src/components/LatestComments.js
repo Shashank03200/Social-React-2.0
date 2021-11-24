@@ -2,12 +2,17 @@ import { React, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, Spinner } from "@chakra-ui/react";
 import Comment from "./Comment";
-import axios from "axios";
+
+import { useDispatch } from "react-redux";
+import routeInstance from "../routes.instance";
+import { UISliceActions } from "../store/UISlice";
 
 function LatestComments(props) {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const accessToken = localStorage.getItem("accessToken");
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   console.log("LatestComments.js", accessToken);
 
+  const dispatch = useDispatch();
   const [latestComments, setLatestComments] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [refetchData, setRefetchData] = useState(false);
@@ -18,20 +23,27 @@ function LatestComments(props) {
     try {
       const loadComments = async () => {
         setIsLoading(true);
-        const response = await axios({
+        const response = await routeInstance({
           url: `/api/comments/${props.postId}/latest`,
           method: "get",
-          headers: { Authorization: "Bearer " + accessToken },
         });
 
-        const data = await response.data;
-
-        if (response.status === 200) {
-          setLatestComments(data);
-          setIsLoading(false);
-        } else {
-          setLatestComments([]);
-          setIsLoading(false);
+        if (response) {
+          if (response.status === 200) {
+            const data = await response.data;
+            setLatestComments(data);
+            setIsLoading(false);
+          } else {
+            dispatch(
+              UISliceActions.setToastData({
+                isActive: true,
+                title: "Unauthorized",
+                status: "danger",
+              })
+            );
+            setLatestComments([]);
+            setIsLoading(false);
+          }
         }
       };
 
@@ -41,7 +53,7 @@ function LatestComments(props) {
     }
 
     return () => setRefetchData(false);
-  }, [props.postId, refetchData]);
+  }, []);
 
   useEffect(() => {
     if (props.newCommentData) {

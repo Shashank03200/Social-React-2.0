@@ -25,6 +25,7 @@ app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
 app.use("/api/comments", commentRouter);
 
+// Error Response Middleware
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.send({
