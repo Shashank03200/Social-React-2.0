@@ -4,7 +4,9 @@ const authSlice = createSlice({
   name: "userSlice",
   initialState: {
     isLoggedIn: false,
+    authBtnLoading: false
   },
+
   reducers: {
     setUser(state, action) {
       localStorage.setItem("accessToken", action.payload.accessToken);
@@ -22,6 +24,10 @@ const authSlice = createSlice({
     loginUser(state) {
       state.isLoggedIn = true;
     },
+    setAuthLoadingBtnState(state, action){
+      console.log('authSlice.js',action.payload);
+      state.authBtnLoading = action.payload
+    }
   },
 });
 

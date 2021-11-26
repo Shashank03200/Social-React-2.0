@@ -1,13 +1,13 @@
-import { Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
 
 import "./App.css";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import FeedPage from "./pages/FeedPage";
-import { authSliceActions } from "./store/authSlice";
+
 import { UISliceActions } from "./store/UISlice";
 
 function App() {
@@ -18,8 +18,7 @@ function App() {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const toastData = useSelector((state) => state.UISlice.toastData);
 
-  const isActive = toastData.isActive;
-
+  const {isActive} = toastData;
 
   useEffect(() => {
     if (isActive) {
@@ -29,7 +28,9 @@ function App() {
         position: "top-right",
         isClosable: true,
         duration: 2000,
-      });
+      }); 
+
+      setTimeout(()=>dispatch(UISliceActions.resetToastData(), 2000));
     }
   }, [isActive]);
 

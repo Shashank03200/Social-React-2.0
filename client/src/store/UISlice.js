@@ -16,7 +16,7 @@ const UISlice = createSlice({
       state.toastData.title = action.payload.title;
       state.toastData.status = action.payload.status;
     },
-    resetToastData(state, action) {
+    resetToastData(state) {
       state.toastData.isActive = false;
       state.toastData.title = undefined;
       state.toastData.status = undefined;

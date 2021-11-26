@@ -13,16 +13,19 @@ import { useEffect } from "react";
 import { UISliceActions } from "../store/UISlice";
 
 const RegisterPage = () => {
+
   const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
+  const authBtnLoading = useSelector(state => state.user.authBtnLoading);
+
 
   const formSubmitHandler = (event) => {
     event.preventDefault();
+    console.log(email, password, username);
     dispatch(registerUser({ email, username, password }));
   };
 
@@ -49,6 +52,7 @@ const RegisterPage = () => {
             method="post"
             className="RegisterForm"
             onSubmit={formSubmitHandler}
+            autoComplete="off"
           >
             <Input
               marginY="14px"
@@ -91,12 +95,13 @@ const RegisterPage = () => {
               color="white"
               size="xs"
               className="RegisterButton"
+              isLoading={authBtnLoading}
             >
               Sign Up
             </Button>
           </form>
           <div className="RegisteredUserMessageDiv">
-            Already a user?&nbsp;&nbsp; <Link to="/login">Register</Link>
+            Already a user?&nbsp;&nbsp; <Link to="/login">Login</Link>
           </div>
         </div>
       </div>

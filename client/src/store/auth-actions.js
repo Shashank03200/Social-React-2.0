@@ -3,24 +3,18 @@ import { UISliceActions } from "./UISlice";
 import axios from "axios";
 
 export const registerUser = (userDetails) => {
+
   return async (dispatch) => {
     try {
+      dispatch(authSliceActions.setAuthLoadingBtnState(true));
       const response = await axios({
         method: "post",
         url: "http://localhost:5000/api/auth/register",
-        data: JSON.stringify(userDetails),
+        data: userDetails
       });
       console.log(response);
-      if (response.status !== 200) {
-        const { error } = await response.data;
-        console.log(error);
-        dispatch(
-          UISliceActions.setToastData({
-            isActive: true,
-            title: error.message,
-            status: "warning",
-          })
-        );
+      if (response.status !== 200) {        
+        console.log('Error');
       } else {
         const data = await response.data;
         console.log(data);
@@ -38,8 +32,19 @@ export const registerUser = (userDetails) => {
           })
         );
       }
+      dispatch(authSliceActions.setAuthLoadingBtnState(false));
+
     } catch (err) {
-      console.log(err);
+      
+      const backendErrorMsg = err.response.data.error.message;
+      dispatch(
+        UISliceActions.setToastData({
+          isActive: true,
+          title: backendErrorMsg,
+          status: "warning",
+        })
+      );
+      dispatch(authSliceActions.setAuthLoadingBtnState(false));
       authSliceActions.removeUser();
     }
   };
@@ -48,34 +53,21 @@ export const registerUser = (userDetails) => {
 export const loginUser = (userDetails) => {
   return async (dispatch) => {
     try {
+      dispatch(authSliceActions.setAuthLoadingBtnState(true));
       const response = await axios({
         url: "http://localhost:5000/api/auth/login",
         method: "post",
         headers: {
           "Content-Type": "application/json",
         },
-        data: JSON.stringify(userDetails),
+        data: userDetails,
       });
-      if(response.status === 404){
-        const error = await response.data.error;
-        dispatch(
-          UISliceActions.setToastData({
-            isActive: true,
-            title: "Account not registered",
-            status: "error",
-          })
-        );
+
+      dispatch(authSliceActions.setAuthLoadingBtnState(false));
+      if(response.status !== 200){
+        console.log(response)
       }
-      else if (response.status !== 200) {
-        const error = await response.data.error;
-        dispatch(
-          UISliceActions.setToastData({
-            isActive: true,
-            title: error.message,
-            status: "warning",
-          })
-        );
-      } else {
+       else {
         const data = await response.data;
         console.log(data);
         dispatch(
@@ -84,6 +76,8 @@ export const loginUser = (userDetails) => {
             refreshToken: data.refreshToken,
           })
         );
+        dispatch(authSliceActions.setAuthLoadingBtnState(false));
+
         dispatch(
           UISliceActions.setToastData({
             isActive: true,
@@ -93,7 +87,15 @@ export const loginUser = (userDetails) => {
         );
       }
     } catch (err) {
-      console.log(err);
+      const backendErrorMsg = err.response.data.error.message;
+      dispatch(
+        UISliceActions.setToastData({
+          isActive: true,
+          title: backendErrorMsg,
+          status: "warning",
+        })
+      );
+      dispatch(authSliceActions.setAuthLoadingBtnState(false));
       authSliceActions.removeUser();
     }
   };

@@ -14,6 +14,8 @@ const {
 
 router.post("/register", async (req, res, next) => {
   try {
+
+    console.log(req.body);
     const result = await registerSchema.validateAsync(req.body);
     const foundUser = await User.findOne({ email: result.email });
 
@@ -31,7 +33,8 @@ router.post("/register", async (req, res, next) => {
     const newUser = await new User(result);
     console.log(newUser);
     const savedUser = await newUser.save();
-    // Generate access accessToken
+
+    // Generate access token and refresh token
 
     const accessToken = await signAccessToken(savedUser.id);
     const refreshToken = await signRefreshToken(savedUser.id);
