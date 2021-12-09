@@ -1,5 +1,4 @@
 import axios from "axios";
-import { setTokens } from "./store/auth-actions";
 
 const routeInstance = axios.create({});
 
@@ -36,7 +35,7 @@ routeInstance.interceptors.response.use(
       console.log("Response Intercepted");
       originalRequest._retry = true;
       axios
-        .post(`api/auth/refreshToken`, { refreshToken })
+        .post(`api/auth/refresh-token`, { refreshToken })
         .then((res) => res.data)
         .then((data) => {
           error.config.headers["Authorization"] = "Bearer " + data.accessToken;

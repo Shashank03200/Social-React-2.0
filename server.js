@@ -1,14 +1,21 @@
 require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
 const path = require("path");
+const express = require("express");
+const cors = require("cors");
+
 var morgan = require("morgan");
 require("./helpers/init_mongodb");
 require("./helpers/init_redis");
 
 const app = express();
 app.use(express.json());
+app.use(
+  "/public",
+  express.static(
+    path.join(__dirname, "client", "public", "assets", "uploads", "posts")
+  )
+);
+
 app.use(cors());
 
 app.use(morgan("dev"));

@@ -17,14 +17,14 @@ import {
 import { AiOutlineEllipsis } from "react-icons/ai";
 
 import React, { Fragment } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import {  useDispatch } from "react-redux";
 
 import { postDeleteActionHandler } from "../store/post-actions";
 import { loadTimelinePosts } from "../store/feed-actions";
 
 export default function PostContextMenu({ postId, postDeletePossible }) {
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  
   console.log("PostContextMenu.js", accessToken);
 
   const dispatch = useDispatch();
@@ -35,9 +35,9 @@ export default function PostContextMenu({ postId, postDeletePossible }) {
   const cancelRef = React.useRef();
 
   const postDeleteHandler = () => {
-    dispatch(postDeleteActionHandler(postId)).then(() => {
-      dispatch(loadTimelinePosts());
-    });
+    dispatch(postDeleteActionHandler(postId));
+    setIsOpen(false);
+    dispatch(loadTimelinePosts(1));
   };
 
   return (

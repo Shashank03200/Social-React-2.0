@@ -14,7 +14,6 @@ const {
 
 router.post("/register", async (req, res, next) => {
   try {
-
     console.log(req.body);
     const result = await registerSchema.validateAsync(req.body);
     const foundUser = await User.findOne({ email: result.email });
@@ -30,7 +29,7 @@ router.post("/register", async (req, res, next) => {
         `The username ${result.username} is  already taken`
       );
     }
-    const newUser = await new User(result);
+    const newUser = await new User({ ...result, firstSignIn: true });
     console.log(newUser);
     const savedUser = await newUser.save();
 

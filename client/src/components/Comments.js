@@ -6,7 +6,7 @@ import Comment from "./Comment";
 
 function Comments(props) {
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  
   console.log("Comments.js", accessToken);
 
   const [comments, setComments] = useState([]);

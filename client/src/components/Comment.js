@@ -1,14 +1,14 @@
 import { Box } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Avatar } from "@chakra-ui/react";
-import { useSelector, useDispatch } from "react-redux";
+import {  useDispatch } from "react-redux";
 import { commentDeleteActionHandler } from "../store/post-actions";
 
 import React from "react";
 
 function Comment(props) {
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+ 
   console.log("Comment.js", accessToken);
   const dispatch = useDispatch();
 

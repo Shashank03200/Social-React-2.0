@@ -5,25 +5,23 @@ import { Button } from "@chakra-ui/react";
 import NewPostCreator from "./NewPostCreator";
 import UserDetailsCard from "./UserDetailsCard";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { loadSuggestedUsers, loadTimelinePosts } from "../store/feed-actions";
+import { useDispatch } from "react-redux";
+import { loadSuggestedUsers } from "../store/feed-actions";
 import { Spinner } from "@chakra-ui/spinner";
 import SuggestedUserList from "./SuggestedUserList";
 
 const RightBar = ({ userData }) => {
   const { userId } = userData;
-  console.log("Right bAr", userId);
-  console.log("Userid: ", userId);
+
   const dispatch = useDispatch();
-  const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
   const [suggestedUsers, setSuggestedUsers] = useState(undefined);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (userId) {
-      dispatch(loadSuggestedUsers(userId, setSuggestedUsers));
+      dispatch(loadSuggestedUsers(setSuggestedUsers));
     }
   }, [userId]);
 
@@ -31,23 +29,13 @@ const RightBar = ({ userData }) => {
     setIsModalOpen(false);
   };
 
-  // useEffect(()=>{
-  //   if(isPostCreated){
-  //     dispatch(loadTimelinePosts())
-  //   }
-
-  //   return ()=>{
-  //     setIsPostCreated(false);
-  //   }
-  // },[isPostCreated])
-
   return (
     <Box
       flex="5"
       position="sticky"
       top="50px"
       height="90vh"
-      d="flex"
+      d={{ base: "none", lg: "flex" }}
       flexDirection="column"
       paddingLeft="5vw"
       className="RightBarWrapper"

@@ -3,18 +3,17 @@ import { UISliceActions } from "./UISlice";
 import axios from "axios";
 
 export const registerUser = (userDetails) => {
-
   return async (dispatch) => {
     try {
       dispatch(authSliceActions.setAuthLoadingBtnState(true));
       const response = await axios({
         method: "post",
         url: "http://localhost:5000/api/auth/register",
-        data: userDetails
+        data: userDetails,
       });
       console.log(response);
-      if (response.status !== 200) {        
-        console.log('Error');
+      if (response.status !== 200) {
+        console.log("Error");
       } else {
         const data = await response.data;
         console.log(data);
@@ -33,9 +32,7 @@ export const registerUser = (userDetails) => {
         );
       }
       dispatch(authSliceActions.setAuthLoadingBtnState(false));
-
     } catch (err) {
-      
       const backendErrorMsg = err.response.data.error.message;
       dispatch(
         UISliceActions.setToastData({
@@ -64,10 +61,9 @@ export const loginUser = (userDetails) => {
       });
 
       dispatch(authSliceActions.setAuthLoadingBtnState(false));
-      if(response.status !== 200){
-        console.log(response)
-      }
-       else {
+      if (response.status !== 200) {
+        console.log(response);
+      } else {
         const data = await response.data;
         console.log(data);
         dispatch(
@@ -87,6 +83,7 @@ export const loginUser = (userDetails) => {
         );
       }
     } catch (err) {
+      console.log(err.response.data);
       const backendErrorMsg = err.response.data.error.message;
       dispatch(
         UISliceActions.setToastData({

@@ -16,7 +16,6 @@ import { FiHeart } from "react-icons/fi";
 
 const Navbar = () => {
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   return (
     <Box
@@ -27,7 +26,7 @@ const Navbar = () => {
       backgroundColor="#fff"
     >
       <Container display="flex" p="10px" maxW="container.lg">
-        <Box flex="3">
+        <Box flex={{ base: "6", lg: "3" }}>
           <Image
             src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
             alt="instagram-logo"
@@ -35,7 +34,11 @@ const Navbar = () => {
           />
         </Box>
 
-        <Box flex="6" display="flex" alignItems="center">
+        <Box
+          flex="6"
+          display={{ base: "none", md: "flex" }}
+          alignItems="center"
+        >
           <InputGroup
             display="flex"
             justifyContent="center"

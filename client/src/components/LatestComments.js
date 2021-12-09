@@ -9,7 +9,7 @@ import { UISliceActions } from "../store/UISlice";
 
 function LatestComments(props) {
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+  
   console.log("LatestComments.js", accessToken);
 
   const dispatch = useDispatch();

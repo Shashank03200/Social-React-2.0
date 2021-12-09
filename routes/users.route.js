@@ -99,7 +99,7 @@ router.post("/:id/follow", verifyAccessToken, async (req, res, next) => {
           await currentUser.updateOne({ $push: { following: req.params.id } });
         }
 
-        res.status(200).json("Followed successfully");
+        res.status(200).json("Follow request sent");
       } else {
         res.status(400).json("You already follow this user.");
       }
@@ -136,13 +136,31 @@ router.post("/:id/unfollow", verifyAccessToken, async (req, res, next) => {
 });
 
 // Get all the users
-router.get("/all", verifyAccessToken, async (req, res) => {
+router.get("/suggested-users", verifyAccessToken, async (req, res) => {
   try {
-    const allUsers = await User.find({}).limit(5);
 
-    res.status(200).json(allUsers);
+    const currentUser =  await User.findById(req.userId);
+    
+    if(!currentUser)
+      throw createError.NotFound();
+
+    const currentUserFollowing = currentUser.following;
+    const allUsers = await User.find({}).limit(100);
+    let suggestedUsers = [];
+
+    suggestedUsers = allUsers.filter(user => 
+          user._id.toString() !== currentUser._id.toString() && !currentUserFollowing.includes(user._id)
+    )
+
+    res.status(200).json({
+      error: false,
+      result: suggestedUsers
+    });
   } catch (err) {
-    res.status(500).json("Cannot fetch users");
+    res.status(500).json({
+      error: true,
+      result: "Cannot fetch users. Server Error."
+    });
   }
 });
 

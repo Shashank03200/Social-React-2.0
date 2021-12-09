@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { Box, Avatar, Text, Icon, Button } from "@chakra-ui/react";
+import { Box, Avatar, Text } from "@chakra-ui/react";
 
 import React from "react";
 
@@ -10,8 +9,8 @@ function PostHeader(props) {
 
   console.log("userdata", props);
   return (
-    <Box padding="4px" display="flex" justifyContent="space-between">
-      <Box marginX="5px" display="flex" alignItems="center" mb="12px">
+    <Box display="flex" justifyContent="space-between" px="6px" py="4px">
+      <Box display="flex" alignItems="center" mb="12px">
         <Avatar
           width="28px"
           height="28px"

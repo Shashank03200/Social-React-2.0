@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Icon, HStack, Button } from "@chakra-ui/react";
+import { Box, Icon, HStack } from "@chakra-ui/react";
 import { MdFavoriteBorder } from "react-icons/md";
 import { MdFavorite } from "react-icons/md";
 import { MdComment } from "react-icons/md";
@@ -8,25 +8,11 @@ import { MdModeComment } from "react-icons/md";
 import React from "react";
 
 function PostFooter(props) {
-  const [likesCount, setLikesCount] = useState(props.likes.length);
-
   console.log("Cool", props);
-
-  useEffect(() => {
-    console.log(props.isTouched);
-    if (props.isTouched === false) {
-      return;
-    } else if (props.isLiked === true && props.isTouched) {
-      setLikesCount((prevCount) => (prevCount += 1));
-      console.log(likesCount);
-    } else if (props.isLiked === false && props.isTouched) {
-      setLikesCount((prevCount) => (prevCount -= 1));
-    }
-  }, [props.isLiked]);
 
   return (
     <Box marginY="10px">
-      <HStack spacing="10px">
+      <HStack spacing="10px" paddingX="6px">
         {props.isLiked ? (
           <Icon
             as={MdFavorite}
@@ -34,6 +20,7 @@ function PostFooter(props) {
             w="32px"
             className="action-icon"
             onMouseDown={props.onLikeButtonClick}
+            color="heart.200"
           />
         ) : (
           <Icon
@@ -42,6 +29,7 @@ function PostFooter(props) {
             w="32px"
             className="action-icon"
             onMouseDown={props.onLikeButtonClick}
+            color="heart.200"
           />
         )}
         {props.commentVisibility ? (
@@ -51,6 +39,7 @@ function PostFooter(props) {
             w="30px"
             className="action-icon"
             onClick={props.onCommentButtonClick}
+            color="purple.500"
           />
         ) : (
           <Icon
@@ -59,12 +48,10 @@ function PostFooter(props) {
             w="30px"
             className="action-icon"
             onClick={props.onCommentButtonClick}
+            color="purple.500"
           />
         )}
       </HStack>
-      <Box marginY="8px" fontSize="13px">
-        {likesCount > 0 ? `${likesCount} likes` : "No likes"}
-      </Box>
     </Box>
   );
 }

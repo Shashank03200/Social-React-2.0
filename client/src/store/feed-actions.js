@@ -2,7 +2,7 @@ import { UISliceActions } from "./UISlice";
 import { feedSliceActions } from "./feedSlice";
 
 import routeInstance from "../routes.instance";
-import authSlice from "./authSlice";
+
 
 export const loadUserDataUsingToken = () => {
   return async (dispatch) => {
@@ -41,7 +41,7 @@ export const loadUserDataUsingToken = () => {
 };
 
 export const loadTimelinePosts = (page) => {
-  console.log(page);
+
   return async (dispatch) => {
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -75,35 +75,34 @@ export const loadTimelinePosts = (page) => {
   };
 };
 
-export const loadSuggestedUsers = (userId, setSuggestedUsersList) => {
+export const loadSuggestedUsers = ( setSuggestedUsers) => {
   return async (dispatch) => {
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      console.log("function: loadSuggestedUsers", accessToken);
-      let currentUserFollowingList = [];
-      const headers = { Authorization: "Bearer " + accessToken };
-      routeInstance.get("/api/auth/user").then((response) => {
-        currentUserFollowingList = response.data.following;
-      });
-      console.log("Current User followings: ", currentUserFollowingList);
-      const response = await routeInstance("api/users/all");
-      const allUsers = await response.data;
+      
+      console.log("function: loadSuggestedUsers");
+      
+      
+      const response = await routeInstance({
+        url:"api/users/suggested-users",
+        method:'get',
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      
+      const data = response.data;
 
-      const suggestedUsers = allUsers.filter(
-        (user) =>
-          user._id !== userId && !currentUserFollowingList.includes(user._id)
-      );
-
-      setSuggestedUsersList(suggestedUsers);
+      setSuggestedUsers(data.result);
     } catch (err) {
       console.log(err);
     }
   };
 };
 
-export const followUser = (userId, isFollowing) => async (dispatch) => {
+export const followUser = (userId, isFollowing, setFollowProcessLoading, setIsFollowing) => async (dispatch) => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
+
+    setFollowProcessLoading(true);
     const response = await routeInstance({
       url: `/api/users/${userId}/${isFollowing ? "un" : ""}follow`,
       method: "POST",
@@ -116,13 +115,23 @@ export const followUser = (userId, isFollowing) => async (dispatch) => {
       throw new Error(response.error);
     }
 
-    const data = await response.data;
+    dispatch(UISliceActions.setToastData({
+      isActive: true,
+      title: response.data,
+      status: "success",
+    }))
+    setIsFollowing(prevState => !prevState);
+    setFollowProcessLoading(false);
+    
   } catch (err) {
     console.log(err);
-    UISliceActions.setToastData({
+    const backendErrorMsg = err.response.data.error.message;
+    dispatch(UISliceActions.setToastData({
       isActive: true,
-      title: err.message,
+      title: backendErrorMsg,
       status: "warning",
-    });
+    }))
+    setFollowProcessLoading(false);
+
   }
 };

@@ -1,13 +1,13 @@
 const router = require("express").Router();
-const multer = require("multer");
-const path = require("path");
+
 const fs = require("fs");
+const cloudinary = require("../helpers/cloudinary_init");
 
 const User = require("../models/User");
 const Post = require("../models/Post");
 
 const { verifyAccessToken } = require("../helpers/jwt_auth");
-const auth = require("../middleware/auth");
+
 const upload = require("../helpers/file_upload");
 
 // Get all timeline posts
@@ -59,34 +59,25 @@ router.post(
     try {
       const userId = req.userId;
       const desc = req.body.desc;
-      const postImage = req.file.filename;
+      const result = await cloudinary.uploader.upload(req.file.filename);
 
-      // console.log(userId, desc, postImage);
+      console.log(userId, desc, result);
+
       const newPost = await new Post({
         userId,
         desc,
-        postImage,
+        postImage: result.public_id,
       });
-      console.log(req.body);
-      if (req.body.confirm === "1") {
-        console.log("NewPost User Id ", userId);
-        console.log("NewPost Desc ", desc);
-        console.log("New Post PostImage ", postImage);
 
-        console.log("COnfirmedd");
-        sampleImages = [];
-        const uploadedPost = await newPost.save();
-        const foundPost = await Post.findById(uploadedPost.id).populate(
-          "userId"
-        );
-        const completePost = {
-          ...foundPost._doc,
-          postDeletePossible:
-            foundPost.userId.toString() === req.userId.toString(),
-        };
-        return res.status(200).json(completePost);
-      }
-      return res.status(200).json(newPost);
+      const uploadedPost = await newPost.save();
+
+      const foundPost = await Post.findById(uploadedPost.id).populate("userId");
+      const completePost = {
+        ...foundPost._doc,
+        postDeletePossible:
+          foundPost.userId.toString() === req.userId.toString(),
+      };
+      return res.status(200).json(completePost);
     } catch (err) {
       next(err);
     }
@@ -96,11 +87,11 @@ router.post(
 // Update a post
 
 // Delete a post
-router.delete("/:postId", auth, async (req, res) => {
+router.delete("/:postId", verifyAccessToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId);
 
-    if (post.userId == req.userId) {
+    if (post.userId.toString() === req.userId.toString()) {
       await Post.findByIdAndDelete(req.params.postId);
       fs.unlinkSync("./client/public/assets/uploads/posts/" + post.postImage);
       res.status(200).json("Post deleted.");

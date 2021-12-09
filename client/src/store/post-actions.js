@@ -3,40 +3,15 @@ import routeInstance from "../routes.instance";
 import { feedSliceActions } from "./feedSlice";
 import { UISliceActions } from "./UISlice";
 
-export const loadImageFromDisk =
-  (formData, setImageSrc) => async (dispatch) => {
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      routeInstance
-        .post("api/posts/newpost", formData, {
-          headers: {},
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            return response.data;
-          } else {
-            setImageSrc("");
-            return;
-          }
-        })
-        .then((data) => {
-          setImageSrc(data.postImage);
-        });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
 export const createNewPost = (formData) => async (dispatch) => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
     const response = await routeInstance.post("api/posts/newpost", formData, {
       headers: {},
     });
 
     const data = await response.data;
     console.log("New Post Data: ", data);
-    console.log(data);
+
     if (response.status === 200) {
       dispatch(feedSliceActions.addNewPost(data));
     }
@@ -66,7 +41,6 @@ export const checkLikeStatus = async (postId) => {
 export const likeDislikePostHandler =
   (postId, setIsLiked) => async (dispatch) => {
     try {
-      const accessToken = localStorage.getItem("accessToken");
       const response = await routeInstance({
         url: `api/posts/${postId}/like`,
         method: "POST",
@@ -89,8 +63,6 @@ export const likeDislikePostHandler =
 
 export const postDeleteActionHandler = (postId) => {
   return async (dispatch) => {
-    const accessToken = localStorage.getItem("accessToken");
-    console.log(accessToken);
     try {
       const response = await routeInstance({
         method: "delete",
@@ -99,14 +71,12 @@ export const postDeleteActionHandler = (postId) => {
       });
 
       const data = await response.data;
-      console.log(data);
     } catch (error) {}
   };
 };
 
 export const commentDeleteActionHandler = (commentId, postId) => {
   return async (dispatch) => {
-    const accessToken = localStorage.getItem("accessToken");
     console.log(commentId, postId);
     const response = await routeInstance({
       method: "delete",

@@ -1,7 +1,7 @@
 import Post from "./Post";
 
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Box } from "@chakra-ui/layout";
 import { useSelector, useDispatch } from "react-redux";
 import { loadTimelinePosts } from "../store/feed-actions";
@@ -44,7 +44,12 @@ const Feed = () => {
   };
 
   return (
-    <Box flex="5" marginLeft="250px">
+    <Box
+      flex="5"
+      marginLeft={{ sm: "10px", lg: "250px" }}
+      marginX={{ base: "0px" }}
+      backgroundColor="feedBackground.300"
+    >
       {timelinePosts === [] ? (
         <Spinner />
       ) : (

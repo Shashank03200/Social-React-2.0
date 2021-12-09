@@ -1,13 +1,13 @@
 import { Box, Avatar, Input, Button } from "@chakra-ui/react";
 
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import routeInstance from "../routes.instance";
 
 function CommentInput(props) {
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
   console.log("CommentInput.js", accessToken);
 
   const { userName: username, userProfileImage: profileImage } = useSelector(
@@ -36,7 +36,7 @@ function CommentInput(props) {
       });
 
       const data = await response.data;
-      console.log("COmment data: ", data);
+      console.log("Comment data: ", data);
 
       props.appendComment(data);
       setText("");
@@ -64,6 +64,7 @@ function CommentInput(props) {
         d="flex"
         justifyContent="center"
         alignContent="center"
+        display={{ base: "none", lg: "flex" }}
         overflow="hidden"
         maxWidth="100px"
       >

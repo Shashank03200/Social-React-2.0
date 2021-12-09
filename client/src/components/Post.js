@@ -12,18 +12,32 @@ import PostHeader from "./PostHeader";
 import PostSkeleton from "./PostSkeleton";
 
 const Post = ({ postData }) => {
+  const [isLiked, setIsLiked] = useState(undefined);
+
+  useEffect(() => {
+    console.log(isTouched);
+    if (isTouched === false) {
+      return;
+    } else if (isLiked === true && isTouched) {
+      setLikesCount((prevCount) => (prevCount += 1));
+      console.log(likesCount);
+    } else if (isLiked === false && isTouched) {
+      setLikesCount((prevCount) => (prevCount -= 1));
+    }
+  }, [isLiked]);
+
   console.log(postData);
   const { _id: postId, postDeletePossible } = postData;
   const dispatch = useDispatch();
 
   const accessToken = localStorage.getItem("accessToken");
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
   console.log("Post.js", accessToken);
 
   console.log(postData._id);
 
-  const [isLiked, setIsLiked] = useState(undefined);
   const [commentsVisibility, setCommentsVisibility] = useState(false);
+  const [likesCount, setLikesCount] = useState(postData.likes.length);
 
   const [newCommentData, setNewCommentData] = useState(undefined);
   const [isTouched, setIsTouched] = useState(false);
@@ -62,13 +76,14 @@ const Post = ({ postData }) => {
     <LazyLoadComponent>
       <Box
         backgroundColor="white"
-        width="600px"
+        width={{ base: "100%", lg: "600px" }}
         marginBottom="40px"
-        rounded="lg"
-        border="1px solid #ccc"
+        rounded={{ base: "none", lg: "lg" }}
+        border={{ base: "1px solid", lg: "1px solid #ccc" }}
+        borderColor={{ base: "#EEEEEE" }}
         mt="10px"
       >
-        <Box padding="12px">
+        <Box>
           {username && (
             <PostHeader
               username={username}
@@ -78,9 +93,11 @@ const Post = ({ postData }) => {
             />
           )}
 
-          <Box fontSize="14px">{postData.desc}</Box>
+          <Box fontSize="14px" px="6px" py="4px">
+            {postData.desc}
+          </Box>
 
-          <Box maxHeight="600px" overflow="hidden">
+          <Box maxHeight={{ base: "400px", lg: "600px" }} overflow="hidden">
             <Box d="flex" justifyContent="center" alignItems="center">
               <Image
                 src={`${process.env.PUBLIC_URL}/assets/uploads/posts/${postData.postImage}`}
@@ -91,7 +108,6 @@ const Post = ({ postData }) => {
           </Box>
 
           <PostFooter
-            likes={postData.likes}
             isLiked={isLiked}
             setIsLiked={setIsLiked}
             onLikeButtonClick={postLikeActivityHandler}
@@ -122,6 +138,9 @@ const Post = ({ postData }) => {
             postId={postId}
             appendComment={newCommentAppendHandler}
           />
+        </Box>
+        <Box marginY="8px" marginLeft="4px" fontSize="13px">
+          {likesCount > 0 ? `${likesCount} likes` : "No likes"}
         </Box>
       </Box>
     </LazyLoadComponent>
