@@ -8,6 +8,7 @@ const UISlice = createSlice({
       title: undefined,
       status: undefined,
     },
+    isModalOpen: false,
   },
   reducers: {
     setToastData(state, action) {
@@ -20,6 +21,9 @@ const UISlice = createSlice({
       state.toastData.isActive = false;
       state.toastData.title = undefined;
       state.toastData.status = undefined;
+    },
+    toggleModalVisibility(state) {
+      state.isModalOpen = !state.isModalOpen;
     },
   },
 });

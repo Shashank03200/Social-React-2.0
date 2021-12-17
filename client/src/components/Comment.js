@@ -1,14 +1,14 @@
 import { Box } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { Avatar } from "@chakra-ui/react";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { commentDeleteActionHandler } from "../store/post-actions";
 
 import React from "react";
 
 function Comment(props) {
   const accessToken = localStorage.getItem("accessToken");
- 
+
   console.log("Comment.js", accessToken);
   const dispatch = useDispatch();
 
@@ -32,7 +32,6 @@ function Comment(props) {
       marginBottom="2px"
       d="flex"
       mt="2px"
-      pos="relative"
     >
       <Box padding="2px">
         <Avatar

@@ -7,12 +7,11 @@ import routeInstance from "../routes.instance";
 
 function CommentInput(props) {
   const accessToken = localStorage.getItem("accessToken");
-
+  const userProfileImage = useSelector((state) => state.feed.userProfileImage);
+  const userFullname = useSelector((state) => state.feed.userFullname);
   console.log("CommentInput.js", accessToken);
 
-  const { userName: username, userProfileImage: profileImage } = useSelector(
-    (state) => state.feed
-  );
+  const { userName: username } = useSelector((state) => state.feed);
 
   const [text, setText] = useState("");
   let isDisabled = true;
@@ -48,12 +47,7 @@ function CommentInput(props) {
   return (
     <Box width="100%" py="12px" d="flex" borderTop="1px solid #ccc">
       <Box p="5px">
-        <Avatar
-          size="xs"
-          name={`${username}`}
-          src={`${process.env.PUBLIC_URL}/assets/uploads/users/${profileImage}`}
-          mr="4px"
-        />
+        <Avatar size="xs" name={userFullname} src={userProfileImage} mr="4px" />
       </Box>
       <Box
         p="8px"

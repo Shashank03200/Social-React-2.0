@@ -59,14 +59,14 @@ router.post(
     try {
       const userId = req.userId;
       const desc = req.body.desc;
-      const result = await cloudinary.uploader.upload(req.file.filename);
+      const result = await cloudinary.uploader.upload(req.file.path);
 
       console.log(userId, desc, result);
 
       const newPost = await new Post({
         userId,
         desc,
-        postImage: result.public_id,
+        postImage: result.url,
       });
 
       const uploadedPost = await newPost.save();
@@ -83,6 +83,20 @@ router.post(
     }
   }
 );
+
+router.get('/allposts', verifyAccessToken, async(req, res, next)=>{
+  try{
+
+    const userId = req.userId;
+    const posts = await Post.find({userId: userId }).select("postImage");
+    res.status(200).send(posts);
+
+
+  }catch(err){
+    next(err)
+  }
+})
+
 
 // Update a post
 
@@ -158,5 +172,6 @@ router.get("/:postId/likestatus", verifyAccessToken, async (req, res) => {
     res.status(500).json(err.message);
   }
 });
+
 
 module.exports = router;

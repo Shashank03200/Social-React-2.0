@@ -10,3 +10,12 @@
 .RightBarWrapper {
   height: calc(100vh-100px) !important;
 }
+
+.jssLogo {
+  padding-left: 12px;
+  font-family: "Vidaloka", serif;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-size: 20px;
+  color: darkblue;
+}

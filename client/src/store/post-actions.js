@@ -3,7 +3,7 @@ import routeInstance from "../routes.instance";
 import { feedSliceActions } from "./feedSlice";
 import { UISliceActions } from "./UISlice";
 
-export const createNewPost = (formData) => async (dispatch) => {
+export const createNewPost = (formData, callback) => async (dispatch) => {
   try {
     const response = await routeInstance.post("api/posts/newpost", formData, {
       headers: {},
@@ -14,9 +14,11 @@ export const createNewPost = (formData) => async (dispatch) => {
 
     if (response.status === 200) {
       dispatch(feedSliceActions.addNewPost(data));
+      callback();
     }
   } catch (err) {
     console.log(err);
+    callback();
   }
 };
 

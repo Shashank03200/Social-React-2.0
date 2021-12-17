@@ -6,17 +6,29 @@ const feedSlice = createSlice({
     userId: null,
     userProfileImage: null,
     userName: null,
+    userFullName: null,
     pageNo: 1,
+    bio: undefined,
+    followers: undefined,
+    following: undefined,
+    suggestedUsers: undefined,
     morePosts: true,
     timelinePosts: [],
   },
 
   reducers: {
     setUserData(state, action) {
-      const { _id, profileImage, username } = action.payload;
+      const { _id, profileImage, name, followers, following, username, bio } =
+        action.payload;
+      console.log("Followers", followers);
+      console.log("Followings", following);
       state.userId = _id;
+      state.userFullName = name;
       state.userProfileImage = profileImage;
+      state.followers = followers;
+      state.following = following;
       state.userName = username;
+      state.bio = bio;
     },
 
     setTimelinePosts(state, action) {
@@ -40,6 +52,12 @@ const feedSlice = createSlice({
       state.pageNo = 1;
       state.morePosts = true;
       state.timelinePosts = [];
+    },
+    setSuggestedUsers(state, action) {
+      state.suggestedUsers = action.payload;
+    },
+    resetSuggestedUsers(state) {
+      state.suggestedUsers = undefined;
     },
   },
 });

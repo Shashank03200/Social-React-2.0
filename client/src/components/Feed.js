@@ -2,7 +2,7 @@ import Post from "./Post";
 
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useEffect } from "react";
-import { Box } from "@chakra-ui/layout";
+import { Box, Text } from "@chakra-ui/layout";
 import { useSelector, useDispatch } from "react-redux";
 import { loadTimelinePosts } from "../store/feed-actions";
 import { Spinner } from "@chakra-ui/spinner";
@@ -48,7 +48,6 @@ const Feed = () => {
       flex="5"
       marginLeft={{ sm: "10px", lg: "250px" }}
       marginX={{ base: "0px" }}
-      backgroundColor="feedBackground.300"
     >
       {timelinePosts === [] ? (
         <Spinner />
@@ -59,9 +58,9 @@ const Feed = () => {
           hasMore={morePosts}
           loader={<PostSkeleton />}
           endMessage={
-            <p style={{ textAlign: "center" }}>
-              <b>You are all caught up</b>
-            </p>
+            <Box padding="12px" style={{ textAlign: "center" }}>
+              <Text fontSize="lg">You are all caught up</Text>
+            </Box>
           }
         >
           {timelinePosts.map((post, index) => (

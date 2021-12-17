@@ -7,15 +7,48 @@ import {
   Icon,
   HStack,
   Avatar,
+  Text,
 } from "@chakra-ui/react";
 
-import { useSelector } from "react-redux";
-import { IoHomeSharp } from "react-icons/io5";
-import { AiOutlineMessage } from "react-icons/ai";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect, useHistory } from "react-router-dom";
+import { IoMdHeartEmpty, IoMdHeart } from "react-icons/io";
+import { IoHomeSharp, IoHomeOutline } from "react-icons/io5";
+import NewPostIcon from "./CustomIcons/NewPostIcon";
+
 import { FiHeart } from "react-icons/fi";
+import { UISliceActions } from "../store/UISlice";
+import { useState } from "react";
 
 const Navbar = () => {
-  const accessToken = localStorage.getItem("accessToken");
+  const dispatch = useDispatch();
+  const isModalOpen = useSelector((state) => state.UISlice.isModalOpen);
+  const userProfileImage = useSelector((state) => state.feed.userProfileImage);
+  const userFullname = useSelector((state) => state.feed.userFullname);
+  const history = useHistory();
+  const [activeIcon, setActiveIcon] = useState({
+    home: true,
+    suggestions: false,
+    newPost: false,
+  });
+
+  const activeIconChangeHandler = (activeValue) => {
+    setActiveIcon((prevState) => {
+      return {
+        ...prevState,
+        home: activeValue === "home",
+        suggestions: activeValue === "suggestions",
+        newPost: activeValue === "newPost",
+      };
+    });
+  };
+
+  console.log("activeIcon", activeIcon);
+
+  const toggleCreatePostModalVisibility = () => {
+    activeIconChangeHandler("newPost");
+    dispatch(UISliceActions.toggleModalVisibility());
+  };
 
   return (
     <Box
@@ -28,14 +61,13 @@ const Navbar = () => {
       <Container display="flex" p="10px" maxW="container.lg">
         <Box flex={{ base: "6", lg: "3" }}>
           <Image
-            src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
-            alt="instagram-logo"
-            className="action-icon"
+            src={process.env.PUBLIC_URL + "/assets/uploads/posts/new.png"}
+            objectFit="contain"
           />
         </Box>
 
         <Box
-          flex="6"
+          flex="2"
           display={{ base: "none", md: "flex" }}
           alignItems="center"
         >
@@ -43,6 +75,7 @@ const Navbar = () => {
             display="flex"
             justifyContent="center"
             alignItems="center"
+            display="none"
           >
             <Input
               placeholder="Search"
@@ -55,23 +88,44 @@ const Navbar = () => {
           </InputGroup>
         </Box>
 
-        <Box flex="3">
+        <Box flex="2">
           <HStack spacing="24px" display="flex" justifyContent="flex-end">
-            <Icon as={IoHomeSharp} w="24px" h="24px" className="action-icon" />
             <Icon
-              as={AiOutlineMessage}
+              as={IoHomeSharp}
               w="24px"
               h="24px"
               className="action-icon"
+              onClick={() => {
+                history.replace("/");
+              }}
             />
-            <Icon as={FiHeart} w="24px" h="24px" className="action-icon" />
+            <span
+              style={{ cursor: "pointer" }}
+              onClick={toggleCreatePostModalVisibility}
+            >
+              <NewPostIcon style={isModalOpen ? "filled" : ""} />
+            </span>
+
+            <Icon
+              as={IoMdHeartEmpty}
+              w="24px"
+              h="24px"
+              className="action-icon"
+              onClick={() => {
+                history.replace("/update");
+              }}
+            />
 
             <Avatar
               height="24px"
               width="24px"
               size="xs"
-              src={`${process.env.PUBLIC_URL}/assets/uploads/users/profile-image.png`}
+              name={userFullname}
+              src={userProfileImage}
               className="action-icon"
+              onClick={() => {
+                history.replace("/profile");
+              }}
             />
           </HStack>
         </Box>

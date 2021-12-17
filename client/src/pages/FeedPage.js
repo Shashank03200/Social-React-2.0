@@ -20,8 +20,10 @@ const FeedPage = () => {
   useEffect(() => {
     if (isLoggedIn) {
       console.log("Is Logged In", isLoggedIn);
-
-      dispatch(loadUserDataUsingToken());
+      const functionS = (value) => {
+        console.log(value);
+      };
+      dispatch(loadUserDataUsingToken(functionS));
     }
   }, []);
 

@@ -1,32 +1,36 @@
 import { Link, Redirect } from "react-router-dom";
 import { Input, Button } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
+import { useHistory } from "react-router-dom";
 import AuthImage from "../svg/authentication-logo.png";
-import InstaLogo from "../svg/instagram-logo-medium.png";
+
 import "./RegisterPage.css";
 
 import { registerUser } from "../store/auth-actions";
 
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { UISliceActions } from "../store/UISlice";
 
 const RegisterPage = () => {
-
   const dispatch = useDispatch();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const authBtnLoading = useSelector(state => state.user.authBtnLoading);
+  const authBtnLoading = useSelector((state) => state.user.authBtnLoading);
+  const history = useHistory();
 
+  const finishRegister = (res) => {
+    if (res) {
+      history.replace("/update");
+    }
+  };
 
   const formSubmitHandler = (event) => {
     event.preventDefault();
     console.log(email, password, username);
-    dispatch(registerUser({ email, username, password }));
+    dispatch(registerUser({ email, username, password }, finishRegister));
   };
 
   return (
@@ -41,7 +45,10 @@ const RegisterPage = () => {
       <div className="RegisterRight">
         <div className="FormWrapper">
           <div className="SiteLogo">
-            <img src={InstaLogo} className="InstaLogo" />
+            <img
+              src={process.env.PUBLIC_URL + "/assets/uploads/posts/logo.png"}
+              className="InstaLogo"
+            />
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <h2 className="RegisterDesc">

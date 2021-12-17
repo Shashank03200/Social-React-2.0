@@ -1,4 +1,4 @@
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import React, { useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
@@ -12,10 +12,10 @@ import routeInstance from "./routes.instance";
 
 import { authSliceActions } from "./store/authSlice";
 import { UISliceActions } from "./store/UISlice";
-
+import ProfilePage from "./pages/ProfilePage";
+import ProfileSetup from "./pages/ProfileSetup";
 
 function App() {
-
   const dispatch = useDispatch();
   const toast = useToast();
 
@@ -25,37 +25,32 @@ function App() {
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
 
-  const {isActive} = toastData;
+  const { isActive } = toastData;
 
-  useEffect(()=>{
-
+  useEffect(() => {
     async function checkToken() {
-
       const response = await routeInstance({
-        url:'/api/auth/user',
-        method:'GET',
-        headers:{
-          "Content-Type":"application/json"
-        }
+        url: "/api/auth/user",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
-      if(response && response.data){
+      if (response && response.data) {
         dispatch(authSliceActions.loginUser());
       }
-        
     }
 
-    if(accessToken && refreshToken){
-
-      try{
-       checkToken();
-      }
-      catch(err){
+    if (accessToken && refreshToken) {
+      try {
+        checkToken();
+      } catch (err) {
         dispatch(authSliceActions.removeUser());
-        console.log(err)
+        console.log(err);
       }
     }
-  },[])
+  }, []);
 
   useEffect(() => {
     if (isActive) {
@@ -65,28 +60,31 @@ function App() {
         position: "top-right",
         isClosable: true,
         duration: 2000,
-      }); 
+      });
 
-      setTimeout(()=>dispatch(UISliceActions.resetToastData(), 2000));
+      setTimeout(() => dispatch(UISliceActions.resetToastData(), 2000));
     }
   }, [isActive]);
 
-  console.log('isLoggedIn',isLoggedIn);
+  console.log("isLoggedIn", isLoggedIn);
   return (
     <div className="App">
       <Switch>
-      
-      <Route path="/login" exact>
-      {isLoggedIn ? <FeedPage /> : <LoginPage /> }
-      </Route>
-      <Route path="/register" exact>
-      {isLoggedIn ? <FeedPage /> : <RegisterPage /> }
-      </Route>  
-      <Route path="/">
-        {isLoggedIn ? <FeedPage /> : <LoginPage /> }
-      </Route>
-      </Switch>
+        <Route path="/login" exact>
+          {isLoggedIn ? <Redirect to="/" /> : <LoginPage />}
+        </Route>
+        <Route path="/register" exact>
+          {isLoggedIn ? <Redirect to="/" /> : <RegisterPage />}
+        </Route>
+        <Route path="/profile" exact>
+          {isLoggedIn ? <ProfilePage /> : <RegisterPage />}
+        </Route>
+        <Route path="/update" exact>
+          {isLoggedIn ? <ProfileSetup /> : <RegisterPage />}
+        </Route>
 
+        <Route path="/">{isLoggedIn ? <FeedPage /> : <LoginPage />}</Route>
+      </Switch>
     </div>
   );
 }

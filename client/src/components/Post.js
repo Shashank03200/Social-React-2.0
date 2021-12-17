@@ -76,12 +76,14 @@ const Post = ({ postData }) => {
     <LazyLoadComponent>
       <Box
         backgroundColor="white"
-        width={{ base: "100%", lg: "600px" }}
+        width={{ base: "100%", md: "600px" }}
         marginBottom="40px"
+        mx="auto"
         rounded={{ base: "none", lg: "lg" }}
         border={{ base: "1px solid", lg: "1px solid #ccc" }}
         borderColor={{ base: "#EEEEEE" }}
         mt="10px"
+        className="postImageContainer"
       >
         <Box>
           {username && (
@@ -100,8 +102,8 @@ const Post = ({ postData }) => {
           <Box maxHeight={{ base: "400px", lg: "600px" }} overflow="hidden">
             <Box d="flex" justifyContent="center" alignItems="center">
               <Image
-                src={`${process.env.PUBLIC_URL}/assets/uploads/posts/${postData.postImage}`}
-                objectFit="cover"
+                src={postData.postImage}
+                objectFit="contain"
                 minHeight="500px"
               />
             </Box>

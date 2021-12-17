@@ -4,29 +4,30 @@ import { Button } from "@chakra-ui/react";
 
 import NewPostCreator from "./NewPostCreator";
 import UserDetailsCard from "./UserDetailsCard";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { loadSuggestedUsers } from "../store/feed-actions";
 import { Spinner } from "@chakra-ui/spinner";
 import SuggestedUserList from "./SuggestedUserList";
+import { UISliceActions } from "../store/UISlice";
 
 const RightBar = ({ userData }) => {
   const { userId } = userData;
 
   const dispatch = useDispatch();
 
-  const [suggestedUsers, setSuggestedUsers] = useState(undefined);
+  const suggestedUsers = useSelector((state) => state.feed.suggestedUsers);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const isModalOpen = useSelector((state) => state.UISlice.isModalOpen);
 
   useEffect(() => {
     if (userId) {
-      dispatch(loadSuggestedUsers(setSuggestedUsers));
+      dispatch(loadSuggestedUsers());
     }
   }, [userId]);
 
-  const onModalClose = () => {
-    setIsModalOpen(false);
+  const togglePostCreatorModalVisibility = () => {
+    dispatch(UISliceActions.toggleModalVisibility());
   };
 
   return (
@@ -63,9 +64,10 @@ const RightBar = ({ userData }) => {
         >
           <Button
             width="100%"
-            bgGradient="linear(to-r, #7928CA , #FF0080)"
+            backgroundColor="blue"
             color="white"
-            onClick={() => setIsModalOpen(true)}
+            boxShadow="0px 2px 5px gray"
+            onClick={togglePostCreatorModalVisibility}
             _hover={{
               bgGradient: "linear(to-r, #7928CA , #FF0080 )",
             }}
@@ -77,10 +79,7 @@ const RightBar = ({ userData }) => {
           >
             Create A Post
           </Button>
-          <NewPostCreator
-            isModalOpen={isModalOpen}
-            onModalClose={onModalClose}
-          />
+          <NewPostCreator />
         </Box>
       </Box>
 

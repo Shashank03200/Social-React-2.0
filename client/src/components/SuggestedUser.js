@@ -2,23 +2,24 @@ import { useState } from "react";
 
 import { Box, Button } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/avatar";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { followUser } from "../store/feed-actions";
 
 const SuggestedUser = (props) => {
-
-  
   const dispatch = useDispatch();
   const [followProcessLoading, setFollowProcessLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  console.log('Followings : ', props.currentuserFollowings);
-
+  console.log("Followings : ", props.currentuserFollowings);
 
   const followHandler = () => {
     dispatch(
-      followUser( props.userId, isFollowing, setFollowProcessLoading, setIsFollowing)
+      followUser(
+        props.userId,
+        isFollowing,
+        setFollowProcessLoading,
+        setIsFollowing
+      )
     );
-    
   };
   return (
     <Box
@@ -35,7 +36,14 @@ const SuggestedUser = (props) => {
       </Box>
       <Box className="action-icon">{props.username}</Box>
       <Box pos="absolute" right="10px">
-        <Button size="xs"  onClick={followHandler} isLoading={followProcessLoading}>
+        <Button
+          size="xs"
+          backgroundColor="blue.500"
+          color="white"
+          _hover={{ color: "black" }}
+          onClick={followHandler}
+          isLoading={followProcessLoading}
+        >
           {isFollowing ? "Unfollow" : "Follow"}
         </Button>
       </Box>

@@ -10,6 +10,7 @@ function PostSkeleton() {
       width="600px"
       marginBottom="40px"
       height="600px"
+      mx="auto"
     >
       <Box d="flex">
         <SkeletonCircle size="10" />

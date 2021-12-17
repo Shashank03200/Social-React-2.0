@@ -7,7 +7,7 @@ import {
   Image,
   Spinner,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { MdFileUpload } from "react-icons/md";
 import {
   Modal,
@@ -21,18 +21,26 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { createNewPost } from "../store/post-actions";
 import { loadTimelinePosts } from "../store/feed-actions";
+import ProcessOverlay from "./ProcessOverlay";
+import { UISliceActions } from "../store/UISlice";
 
 function NewPostCreator(props) {
   const dispatch = useDispatch();
 
   const page = useSelector((state) => state.feed.pageNo);
+  const isModalOpen = useSelector((state) => state.UISlice.isModalOpen);
 
   const [caption, setCaption] = useState("");
-  const [imgFile, setImgFile] = useState("");
+
   const imageRef = useRef();
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [imageFilename, setImageFilename] = useState("");
+  const [postUploadProgress, setPostUploadProgress] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
+
+  const togglePostCreatorModalVisibility = () => {
+    dispatch(UISliceActions.toggleModalVisibility());
+  };
 
   const imageChangeHandler = (event) => {
     const file = event.target.files[0];
@@ -41,118 +49,128 @@ function NewPostCreator(props) {
       const reader = new FileReader(file);
 
       reader.addEventListener("load", () => {
-        console.log(reader.result);
-        console.log(imageRef);
+        setImageSrc(reader.result);
+        setImageFilename(file.name);
       });
 
       reader.readAsDataURL(file);
     } else {
-      imageRef.current.src = "";
+      setImageSrc("");
+      setImageFilename("");
     }
   };
 
   const postSubmitHandler = (event) => {
     event.preventDefault();
-    if (!imgFile || imgFile === "") {
+    if (imageSrc === "") {
       setShowErrorModal(true);
       return;
+    } else {
+      setShowErrorModal(false);
     }
     const formData = new FormData();
     formData.append("desc", caption);
     formData.append("postImage", event.target.postImage.files[0]);
-    formData.append("confirm", "1");
 
-    dispatch(createNewPost(formData, page))
+    const callback = () => {
+      dispatch(UISliceActions.toggleModalVisibility());
+    };
+
+    setPostUploadProgress(true);
+    dispatch(createNewPost(formData, callback))
       .then(() => {
-        dispatch(loadTimelinePosts());
+        setPostUploadProgress(false);
+        dispatch(loadTimelinePosts(page));
       })
       .then(() => {
-        setImgFile("");
+        setImageSrc("");
         setCaption("");
       });
-
-    props.onModalClose();
   };
 
   return (
     <Modal
       closeOnOverlayClick={false}
-      isOpen={props.isModalOpen}
+      isOpen={isModalOpen}
       size="xl"
-      onClose={props.onModalClose}
+      onClose={togglePostCreatorModalVisibility}
     >
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Create your post</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Box mt="3">
-            <form
-              encType="multipart/form-data"
-              method="POST"
-              onSubmit={postSubmitHandler}
-              autoComplete="off"
-              action="/api/posts/newpost"
-            >
-              <Input
-                placeholder="Add a caption"
-                name="caption"
-                size="sm"
-                onChange={(e) => {
-                  setCaption(e.target.value);
-                }}
-                value={caption}
-              />
-
-              <Box minHeight="60vh" p="16px" textAlign="center">
-                <input
-                  type="file"
-                  id="actual-btn"
-                  name="postImage"
-                  autoComplete="false"
-                  isRequired
-                  hidden
-                  onChange={imageChangeHandler}
+      {postUploadProgress ? (
+        <ProcessOverlay />
+      ) : (
+        <ModalContent>
+          <ModalHeader>Create your post</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <Box mt="3">
+              <form
+                encType="multipart/form-data"
+                method="POST"
+                onSubmit={postSubmitHandler}
+                autoComplete="off"
+                action="/api/posts/newpost"
+              >
+                <Input
+                  placeholder="Add a caption"
+                  name="caption"
+                  size="sm"
+                  onChange={(e) => {
+                    setCaption(e.target.value);
+                  }}
+                  value={caption}
                 />
 
-                <label className="fileLabel" htmlFor="actual-btn">
-                  <Icon as={MdFileUpload} />
-                  &nbsp;&nbsp;
-                  <span>Select an image</span>
-                </label>
-                <Text mt="10px" fontSize="sm" id="file-chosen">
-                  {imgFile}
-                </Text>
-                {showErrorModal && (
-                  <Text color="red.500" fontSize="12px">
-                    Please select a image
-                  </Text>
-                )}
+                <Box minHeight="60vh" p="16px" textAlign="center">
+                  <input
+                    type="file"
+                    id="actual-btn"
+                    name="postImage"
+                    isRequired
+                    hidden
+                    onChange={imageChangeHandler}
+                  />
 
-                <Box d="flex" justifyContent="center" mt="20px">
-                  {isImageLoading && <Spinner size="lg" />}
-                  {imageSrc && (
-                    <img
-                      src={`${process.env.PUBLIC_URL}/assets/uploads/posts/${imageSrc}`}
-                      objectFit="contain"
-                      maxHeight="50vh"
-                      onLoad={() => setIsImageLoading(false)}
-                      ref={imageRef}
-                      alt="coint"
-                    />
+                  <label className="fileLabel" htmlFor="actual-btn">
+                    <Icon as={MdFileUpload} />
+                    &nbsp;&nbsp;
+                    <span>Select an image</span>
+                  </label>
+                  <Text mt="10px" fontSize="sm" id="file-chosen">
+                    {imageFilename}
+                  </Text>
+                  {showErrorModal && (
+                    <Text color="red.500" fontSize="12px">
+                      Please select a image
+                    </Text>
                   )}
+
+                  <Box d="flex" justifyContent="center" mt="20px">
+                    {/* {isImageLoading && <Spinner size="lg" />} */}
+                    {imageSrc && (
+                      <img
+                        src={imageSrc}
+                        objectFit="contain"
+                        maxHeight="50vh"
+                        ref={imageRef}
+                        alt="coint"
+                      />
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-              <ModalFooter>
-                <Button colorScheme="blue" mr={3} type="submit">
-                  Create Post
-                </Button>
-                <Button onClick={props.onModalClose}>Cancel</Button>
-              </ModalFooter>
-            </form>
-          </Box>
-        </ModalBody>
-      </ModalContent>
+                <ModalFooter>
+                  <Button colorScheme="blue" mr={3} type="submit">
+                    Create Post
+                  </Button>
+                  <Button onClick={togglePostCreatorModalVisibility}>
+                    Cancel
+                  </Button>
+                </ModalFooter>
+              </form>
+            </Box>
+          </ModalBody>
+        </ModalContent>
+      )}
     </Modal>
   );
 }

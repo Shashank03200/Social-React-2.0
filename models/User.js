@@ -27,6 +27,11 @@ const UserSchema = new mongoose.Schema(
       max: 50,
       select: false,
     },
+    name: {
+      type: String,
+      default: null,
+      max: 180,
+    },
     followers: {
       type: [{ type: Schema.Types.ObjectId }],
       default: [],

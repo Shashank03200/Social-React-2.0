@@ -1,34 +1,69 @@
+require("dotenv").config();
 const router = require("express").Router();
-const bcrypt = require("bcrypt");
+
+const multer = require("../helpers/file_upload");
 
 const User = require("../models/User");
 const createError = require("http-errors");
 
+const cloudinary = require("cloudinary").v2;
+
 const { verifyAccessToken } = require("../helpers/jwt_auth");
 
 // Update a user info
-router.post("/:id", verifyAccessToken, async (req, res, next) => {
-  try {
-    if (req.userId === req.params.id || req.body.isAdmin) {
-      // If the password is getting updated
+// router.post("/:id", verifyAccessToken, async (req, res, next) => {
+//   try {
+//     if (req.userId === req.params.id || req.body.isAdmin) {
+//       // If the password is getting updated
 
-      if (req.body.password) {
-        const salt = await bcrypt.genSalt(10);
-        req.body.password = await bcrypt.hash(req.body.password, salt);
-      }
+//       if (req.body.password) {
+//         const salt = await bcrypt.genSalt(10);
+//         req.body.password = await bcrypt.hash(req.body.password, salt);
+//       }
 
-      await User.findByIdAndUpdate(req.userId, { $set: req.body });
-      res.status(200).json("Your account details have been updated.");
-    } else {
-      throw createError.BadRequest("You can only update your account details");
-    }
-  } catch (err) {
-    next(createError.InternalServerError());
-  }
-});
+//       await User.findByIdAndUpdate(req.userId, { $set: req.body });
+//       res.status(200).json("Your account details have been updated.");
+//     } else {
+//       throw createError.BadRequest("You can only update your account details");
+//     }
+//   } catch (err) {
+//     next(createError.InternalServerError());
+//   }
+// });
 
 // Delete a user
 // /api/users/:id
+router.post(
+  "/update",
+  verifyAccessToken,
+  multer.single("profileImage"),
+  async (req, res, next) => {
+    try {
+      
+      
+      const result = await cloudinary.uploader.upload(req.file.path);
+
+      console.log(req.body.name);
+      console.log(req.body.bio);
+      console.log(result);
+      
+      const userResult = await User.updateOne(
+        { _id: req.userId },
+        {
+          profileImage: result.url,
+          name: req.body.name,
+          bio: req.body.bio,
+        }
+      );
+      res.status(200).send(userResult);
+    } catch (err) {
+      console.log(err)
+      next(err);
+    }
+  }
+);
+
+
 router.delete("/:id", verifyAccessToken, async (req, res, next) => {
   try {
     if (req.userId == req.params.id || req.body.isAdmin) {
@@ -138,29 +173,41 @@ router.post("/:id/unfollow", verifyAccessToken, async (req, res, next) => {
 // Get all the users
 router.get("/suggested-users", verifyAccessToken, async (req, res) => {
   try {
+    const currentUser = await User.findById(req.userId);
 
-    const currentUser =  await User.findById(req.userId);
-    
-    if(!currentUser)
-      throw createError.NotFound();
+    if (!currentUser) throw createError.NotFound();
 
     const currentUserFollowing = currentUser.following;
     const allUsers = await User.find({}).limit(100);
     let suggestedUsers = [];
 
-    suggestedUsers = allUsers.filter(user => 
-          user._id.toString() !== currentUser._id.toString() && !currentUserFollowing.includes(user._id)
-    )
+    suggestedUsers = allUsers.filter(
+      (user) =>
+        user._id.toString() !== currentUser._id.toString() &&
+        !currentUserFollowing.includes(user._id)
+    );
 
     res.status(200).json({
       error: false,
-      result: suggestedUsers
+      result: suggestedUsers,
     });
   } catch (err) {
     res.status(500).json({
       error: true,
-      result: "Cannot fetch users. Server Error."
+      result: "Cannot fetch users. Server Error.",
     });
+  }
+});
+
+
+router.get("/user", verifyAccessToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    const { password, ...userData } = await user._doc;
+    res.status(200).json(userData);
+  } catch (error) {
+    res.status(400).json("User not found");
   }
 });
 

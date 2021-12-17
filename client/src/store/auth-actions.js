@@ -1,8 +1,9 @@
 import { authSliceActions } from "./authSlice";
 import { UISliceActions } from "./UISlice";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 
-export const registerUser = (userDetails) => {
+export const registerUser = (userDetails, callback) => {
   return async (dispatch) => {
     try {
       dispatch(authSliceActions.setAuthLoadingBtnState(true));
@@ -17,6 +18,7 @@ export const registerUser = (userDetails) => {
       } else {
         const data = await response.data;
         console.log(data);
+
         dispatch(
           authSliceActions.setUser({
             accessToken: data.accessToken,
@@ -28,8 +30,9 @@ export const registerUser = (userDetails) => {
             isActive: true,
             title: "Account created",
             status: "success",
-          })
+          }) 
         );
+        callback(true);
       }
       dispatch(authSliceActions.setAuthLoadingBtnState(false));
     } catch (err) {
@@ -41,6 +44,7 @@ export const registerUser = (userDetails) => {
           status: "warning",
         })
       );
+      callback(false);
       dispatch(authSliceActions.setAuthLoadingBtnState(false));
       authSliceActions.removeUser();
     }

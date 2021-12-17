@@ -9,16 +9,21 @@ function PostHeader(props) {
 
   console.log("userdata", props);
   return (
-    <Box display="flex" justifyContent="space-between" px="6px" py="4px">
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      px="6px"
+      py={{ base: "4px", md: "8px" }}
+    >
       <Box display="flex" alignItems="center" mb="12px">
         <Avatar
           width="28px"
           height="28px"
           size="sm"
-          name={username}
-          src={`${process.env.PUBLIC_URL}/assets/uploads/users/${userProfileSrc}`}
           mr="16px"
           className="action-icon"
+          name={username}
+          src={userProfileSrc}
         />
         <Text fontSize="14px" fontWeight="500" className="action-icon">
           {username}

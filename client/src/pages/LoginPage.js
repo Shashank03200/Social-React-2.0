@@ -1,22 +1,19 @@
 import { Input, Button } from "@chakra-ui/react";
 
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import AuthImage from "../svg/authentication-logo.png";
-import InstaLogo from "../svg/instagram-logo-medium.png";
+
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../store/auth-actions";
 
 import "./LoginPage.css";
 
 const LoginPage = () => {
-
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const authBtnLoading = useSelector(state => state.user.authBtnLoading);
-
+  const authBtnLoading = useSelector((state) => state.user.authBtnLoading);
 
   const loginFormHandler = (e) => {
     e.preventDefault();
@@ -35,10 +32,18 @@ const LoginPage = () => {
       <div className="LoginRight">
         <div className="FormWrapper">
           <div className="SiteLogo">
-            <img src={InstaLogo} className="InstaLogo" />
+            <img
+              src={process.env.PUBLIC_URL + "/assets/uploads/posts/logo.png"}
+              className="InstaLogo"
+            />
           </div>
 
-          <form method="post" onSubmit={loginFormHandler} className="LoginForm" autoComplete="off">
+          <form
+            method="post"
+            onSubmit={loginFormHandler}
+            className="LoginForm"
+            autoComplete="off"
+          >
             <Input
               marginY="14px"
               name="email"
