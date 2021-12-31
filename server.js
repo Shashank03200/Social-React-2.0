@@ -24,7 +24,6 @@ const authRouter = require("./routes/auth.route");
 const userRouter = require("./routes/users.route");
 const postRouter = require("./routes/posts.route");
 const commentRouter = require("./routes/comment.route");
-const { build } = require("joi");
 
 const PORT = process.env.PORT || 5000;
 
@@ -44,6 +43,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Code to be used in production / deployment
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client", "build")));
 
